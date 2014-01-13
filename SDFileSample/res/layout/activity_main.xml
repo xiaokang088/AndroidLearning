@@ -10,31 +10,40 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
-
     <Button
-        android:id="@+id/btnWrite"
+        android:id="@+id/btnLogin2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="Write" />
+        android:text="Use Login2" />
 
     <Button
-        android:id="@+id/btnRead"
+        android:id="@+id/btnMaster"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="Read" />
+        android:text="Use Master" />
 
     <Button
-        android:id="@+id/btnWriteRoot"
+        android:id="@+id/btnDevelop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="Write to root" />
+        android:text="Use Develop" />
+    
 
+    <Button
+        android:id="@+id/btnView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Get Current URL" />
+    
+    <TextView 
+         android:id="@+id/txtView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="" />
+    
 </LinearLayout>

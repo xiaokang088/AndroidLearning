@@ -12,10 +12,12 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.app.Activity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity implements
 		android.view.View.OnClickListener {
@@ -23,23 +25,27 @@ public class MainActivity extends Activity implements
 	String TAG = "IOTest";
 	String FILE_NAME = "/testLog.txt";
 	String content = "test my";
-	TextView textView1;
+	TextView txtView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		Button btnWrite = (Button) this.findViewById(R.id.btnWrite);
-		btnWrite.setOnClickListener(this);
+		Button btnDevelop = (Button) this.findViewById(R.id.btnDevelop);
+		btnDevelop.setOnClickListener(this);
 
-		Button btnRead = (Button) this.findViewById(R.id.btnRead);
-		btnRead.setOnClickListener(this);
+		Button btnLogin2 = (Button) this.findViewById(R.id.btnLogin2);
+		btnLogin2.setOnClickListener(this);
 
-		textView1 = (TextView) this.findViewById(R.id.textView1);
+		Button btnMaster = (Button) this.findViewById(R.id.btnMaster);
+		btnMaster.setOnClickListener(this);
 
-		Button btnWriteRoot = (Button) this.findViewById(R.id.btnWriteRoot);
-		btnWriteRoot.setOnClickListener(this);
+		Button btnView = (Button) this.findViewById(R.id.btnView);
+		btnView.setOnClickListener(this);
+
+		txtView = (TextView) this.findViewById(R.id.txtView);
+
 	}
 
 	@Override
@@ -49,113 +55,50 @@ public class MainActivity extends Activity implements
 		return true;
 	}
 
+	String URL_Develop = "http://develop.seagate-v3-accounts.nero-stage.com/api/v1";
+	String URL_Master = "http://master.seagate-v3-accounts.nero-stage.com/api/v1";
+	String URL_Login = "https://login2.seagate.com/api/v1";
+
+	String serverPath = "seagate.txt";
+
 	public void onClick(View arg0) {
-
 		int id = arg0.getId();
-
+		boolean result = false;
 		switch (id) {
-		case R.id.btnRead:
-			String result = readLog();
-			textView1.setText(result);
+		case R.id.btnDevelop:
+			result = FileHelper.WriteInExternalStorageFile(URL_Develop,
+					serverPath);
+			txtView.setText(URL_Develop);
 			break;
-		case R.id.btnWrite:
-			writeToLog();
+		case R.id.btnMaster:
+			result = FileHelper.WriteInExternalStorageFile(URL_Master,
+					serverPath);
+			txtView.setText(URL_Master);
 			break;
-		case R.id.btnWriteRoot: 
-			FileHelper.AppendLineInExternalStorageFile("ABC","abc.txt");
+		case R.id.btnLogin2:
+			result = FileHelper.WriteInExternalStorageFile(URL_Login,
+					serverPath);
+			txtView.setText(URL_Login);
 			break;
-		}
-	}
-
-	void writeToLog() {
-
-		String state = Environment.getExternalStorageState();
-		Log.i(TAG, "getExternalStorageState:" + state);
-		if (state.equals(Environment.MEDIA_MOUNTED)) {
-			File sdCardDir = Environment.getExternalStorageDirectory();
-			Log.i(TAG, "sdCardDir:" + sdCardDir.getPath());
-
-			try {
-				File targetFile = new File(sdCardDir.getCanonicalPath()
-						+ FILE_NAME);
-				Log.i(TAG, "targetFile:" + targetFile.getPath());
-				RandomAccessFile raf = new RandomAccessFile(targetFile, "rw");
-				raf.seek(targetFile.length());
-
-				StringBuilder builder = new StringBuilder();
-				builder.append(content + "\n");
-				String content = builder.toString();
-				raf.writeUTF(content);
-
-				// raf.write(content.getBytes());
-
-				raf.close();
-
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		case R.id.btnView:
+			String content = FileHelper
+					.ReadStringFromExternalStorageFile(serverPath);
+			result = (content != null);
+			if(content != null) {
+			txtView.setText(content);
+			} else {
+				txtView.setText("current is default server");
 			}
 		}
-	}
-
-	String readLog() {
-
-		String result = "";
-
-		if (Environment.getExternalStorageState().equals(
-				Environment.MEDIA_MOUNTED)) {
-			File sdCardDir = Environment.getExternalStorageDirectory();
-			try {
-				String path = sdCardDir.getCanonicalPath() + FILE_NAME;
-				RandomAccessFile raf = new RandomAccessFile(path, "r");
-				StringBuilder buider = new StringBuilder();
-				String line = raf.readLine();
-				while (line != null) {
-					buider.append(line + "\n");
-					line = raf.readLine();
-				}
-
-				result = buider.toString();
-
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		String toastStr = null;
+		if (result) {
+			toastStr = "  success";
+		} else {
+			toastStr = "  fail";
 		}
-		return result;
-	}
-
-	String readFromLog() {
-		String result = "";
-
-		if (Environment.getExternalStorageState().equals(
-				Environment.MEDIA_MOUNTED)) {
-			File sdCardDir = Environment.getExternalStorageDirectory();
-			Log.i(TAG, "sdCardDir" + sdCardDir.getPath());
-
-			try {
-				FileInputStream targetFile = new FileInputStream(
-						sdCardDir.getCanonicalPath() + FILE_NAME);
-
-				BufferedReader br = new BufferedReader(new InputStreamReader(
-						targetFile));
-
-				StringBuilder builder = new StringBuilder("");
-				String line = null;
-
-				while ((line = br.readLine()) != null) {
-					builder.append(line);
-				}
-				return builder.toString();
-
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		}
-
-		return result;
+		Toast toast = Toast.makeText(this, toastStr, Toast.LENGTH_SHORT);
+		toast.setGravity(Gravity.BOTTOM, 0, 0);
+		toast.show();
 	}
 
 }
