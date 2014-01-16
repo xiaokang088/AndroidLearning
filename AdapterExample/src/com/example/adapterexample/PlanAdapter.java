@@ -17,6 +17,11 @@ public class PlanAdapter extends ArrayAdapter<PlanItem> {
 	}
 
 	@Override
+	public int getCount(){
+		return this.getCount();
+	}
+	
+	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 
 		if (convertView == null) {
