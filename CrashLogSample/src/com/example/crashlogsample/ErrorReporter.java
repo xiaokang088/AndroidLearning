@@ -12,6 +12,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
+
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -19,13 +22,18 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Environment;
 import android.os.StatFs;
+import android.util.Log;
 
+// if App crashed last time, restart App, send crash log to developer.
 public class ErrorReporter implements Thread.UncaughtExceptionHandler {
 
 	String Email = "neroseagate3@gmail.com";
-	private String[] _recipients = new String[] { Email };
-	private String _subject = "Crash Report about Seagate Mobile backup";
-
+	String EmailBeta = "sgmobile.beta@gmail.com";
+	private String[] _recipients = new String[] { EmailBeta };
+	private String _subject = "Seagate Mobile backup (android) Crash!";
+	private String _promptTitle = "For better user experience, please send log to developer.";
+	private String TAG="ErrorReporter";
+	
 	String VersionName;
 	String buildNumber;
 	String PackageName;
@@ -142,7 +150,7 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
 		ReturnVal += "\n";
 		ReturnVal += "FilePath : " + FilePath;
 		ReturnVal += "\n";
-		ReturnVal += "Phone Model" + PhoneModel;
+		ReturnVal += "Phone Model : " + PhoneModel;
 		ReturnVal += "\n";
 		ReturnVal += "Android Version : " + AndroidVersion;
 		ReturnVal += "\n";
@@ -235,14 +243,14 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
 		sendIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
 		sendIntent.setType("message/rfc822");
 		sendIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		_context.startActivity(Intent.createChooser(sendIntent, "Title:"));
+		_context.startActivity(Intent.createChooser(sendIntent, _promptTitle));
 	}
 
 	private void SaveAsFile(String ErrorContent) {
 		try {
 			Random generator = new Random();
 			int random = generator.nextInt(99999);
-			String FileName = "stack-" + random + ".stacktrace";
+			String FileName = "stack-" + random + ".crashLog";
 			FileOutputStream trace = CurContext.openFileOutput(FileName,
 					Context.MODE_PRIVATE);
 			trace.write(ErrorContent.getBytes());
@@ -259,7 +267,7 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
 		// Filter for ".stacktrace" files
 		FilenameFilter filter = new FilenameFilter() {
 			public boolean accept(File dir, String name) {
-				return name.endsWith(".stacktrace");
+				return name.endsWith(".crashLog");
 			}
 		};
 		return dir.list(filter);
@@ -269,7 +277,27 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler {
 		return GetErrorFileList().length > 0;
 	}
 
+	private boolean hasBindGmail() {
+		try {
+			AccountManager manager = AccountManager.get(CurContext);
+			Account[] accounts = manager.getAccountsByType("com.google");
+
+			if (accounts.length > 0) {
+				return true;
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return false;
+	}
+	
 	public void CheckErrorAndSendMail(Context _context) {
+		if(!hasBindGmail()){
+			Log.i(TAG, "sorry, you havn't bind a gmail account");
+			return ;
+		}
+		
+		
 		try {
 			FilePath = _context.getFilesDir().getAbsolutePath();
 			if (bIsThereAnyErrorFile()) {
