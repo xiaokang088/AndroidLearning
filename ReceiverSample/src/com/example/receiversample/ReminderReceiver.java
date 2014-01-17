@@ -40,20 +40,4 @@ public class ReminderReceiver extends BroadcastReceiver {
 		manager.cancel(pi);
 	}
 
-	public static void showNotification(Context context, int icon,
-			String tickertext, String title, String content, int id,
-			int defaults, Intent intent) {
-		Notification notification = new Notification(icon, tickertext,
-				System.currentTimeMillis());
-		notification.defaults = defaults;
-		PendingIntent pt = PendingIntent.getActivity(context, 0, intent, 0);
-		notification.setLatestEventInfo(context, title, content, pt);
-		notification.flags = Notification.FLAG_AUTO_CANCEL;
-		((NotificationManager) context
-				.getSystemService(Context.NOTIFICATION_SERVICE)).notify(id,
-				notification);
-	}
-	
-	 
-
 }
