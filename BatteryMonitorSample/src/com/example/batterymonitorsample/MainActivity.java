@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.util.Log;
 import android.view.Menu;
 import android.widget.Toast;
 
@@ -17,6 +18,18 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		registerBroadCast();
+				
+
+		int brightness = android.provider.Settings.System.getInt(getContentResolver(), 
+                android.provider.Settings.System.SCREEN_BRIGHTNESS,
+                255/2);
+		Log.i("brightness",Integer.toString(brightness)) ;
+		int brightnessMode = android.provider.Settings.System.getInt(getContentResolver(), 
+				android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE,
+				android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC);
+		Log.i("brightnessMode", Integer.toString(brightnessMode)) ;
+	
+	
 	}
 
 	@Override

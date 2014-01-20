@@ -11,6 +11,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+ 
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,6 +45,9 @@ public class MainActivity extends Activity implements
 
 		Button btnThread = (Button) this.findViewById(R.id.btnThread);
 		btnThread.setOnClickListener(this);
+		
+		Button btnDelayThread = (Button) this.findViewById(R.id.btnDelayThread);
+		btnDelayThread.setOnClickListener(this);
 	}
 
 	@Override
@@ -76,6 +80,21 @@ public class MainActivity extends Activity implements
 		if (arg0.getId() == R.id.btnThread) {
 			 commonThread();
 		}
+		
+		if (arg0.getId() == R.id.btnDelayThread) {
+			Log.i(Tag, "1 seconds before");
+			new Handler().postDelayed(new Runnable(){
+
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					Log.i(Tag, "1 seconds later");
+				} 
+				
+				
+			}, 2000);
+		}
+		
 	}
 	
 	

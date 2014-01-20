@@ -4,13 +4,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 
+import org.apache.http.util.EncodingUtils;
+
 import android.os.Bundle;
 import android.os.Environment;
 import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -32,20 +36,19 @@ public class MainActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		Button btnDevelop = (Button) this.findViewById(R.id.btnDevelop);
-		btnDevelop.setOnClickListener(this);
-
-		Button btnLogin2 = (Button) this.findViewById(R.id.btnLogin2);
-		btnLogin2.setOnClickListener(this);
-
-		Button btnMaster = (Button) this.findViewById(R.id.btnMaster);
-		btnMaster.setOnClickListener(this);
-
-		Button btnView = (Button) this.findViewById(R.id.btnView);
-		btnView.setOnClickListener(this);
-
+		setButtonClick(R.id.btnDevelop);
+		setButtonClick(R.id.btnLogin2);
+		setButtonClick(R.id.btnMaster);
+		setButtonClick(R.id.btnView);
+		setButtonClick(R.id.btnInputStream);
+		setButtonClick(R.id.btnOutputStream);
+		
 		txtView = (TextView) this.findViewById(R.id.txtView);
-
+	}
+	
+	void setButtonClick(int id){
+		Button btn = (Button) this.findViewById(id);
+		btn.setOnClickListener(this);
 	}
 
 	@Override
@@ -89,7 +92,21 @@ public class MainActivity extends Activity implements
 			} else {
 				txtView.setText("current is default server");
 			}
+			break;
+		case R.id.btnInputStream:
+			String inputContent = ReadFromFile();
+			if (inputContent != null) {
+				txtView.setText(inputContent);
+			} else {
+				txtView.setText("current is default server");
+			}
+			break;
+		case R.id.btnOutputStream:
+			result= WriteToFile();
+			break;
 		}
+		
+		
 		String toastStr = null;
 		if (result) {
 			toastStr = "  success";
@@ -99,6 +116,58 @@ public class MainActivity extends Activity implements
 		Toast toast = Toast.makeText(this, toastStr, Toast.LENGTH_SHORT);
 		toast.setGravity(Gravity.BOTTOM, 0, 0);
 		toast.show();
+	}
+	
+	
+	String ReadFromFile(){
+		String result = null;
+		
+		//String path= "abc.txt";
+		String path= FileHelper.GetRelativePathInExternalStorage("abc.txt");
+				
+		try {
+			//FileInputStream stream = this.openFileInput(path);
+			FileInputStream stream = new FileInputStream(path);
+			
+			byte[] buffer = new byte[stream.available()];
+			stream.read(buffer);
+			String content = EncodingUtils.getString(buffer, "UTF-8");
+			stream.close();
+			Toast toast = Toast.makeText(this, "FileInputStream:" + content, Toast.LENGTH_SHORT);
+			toast.setGravity(Gravity.BOTTOM, 0, 0);
+			toast.show();
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}  finally{
+			
+		}
+		
+		return result;
+	}
+	
+	
+	boolean WriteToFile(){
+		
+		//String path= "abc.txt";
+		String path= FileHelper.GetRelativePathInExternalStorage("abc.txt");
+		
+		try {
+			// append mode
+			//FileOutputStream stream = this.openFileOutput(path, Context.MODE_APPEND);
+			
+			FileOutputStream stream = new FileOutputStream(path,false);
+		
+			stream.write(("URL:http://baidu.com").getBytes());
+			stream.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		
+		return true;
 	}
 
 }

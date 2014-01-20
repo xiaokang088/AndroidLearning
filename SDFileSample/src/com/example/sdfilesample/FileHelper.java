@@ -89,6 +89,12 @@ public class FileHelper {
 	
 	public static boolean WriteInExternalStorageFile(String content, String relativePath) {
 		if (content==null) return false;
+		String path = GetRelativePathInExternalStorage(relativePath);
+		if (path == null) return false;
+		return Write(content,path);
+	}
+	
+	public static String GetRelativePathInExternalStorage(String relativePath){
 		if (!relativePath.startsWith("/"))
 			relativePath = "/" + relativePath;
 		
@@ -104,9 +110,7 @@ public class FileHelper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if (path == null) return false;
-		
-		return Write(content,path);
+		 return path;
 	}
 	
 	public static boolean AppendLineInExternalStorageFile(String content, String relativePath) {
