@@ -20,27 +20,49 @@
         android:id="@+id/btnGetPictures"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="22dp"
+        android:layout_marginTop="10dp"
         android:text="get pictures" />
 
-        <Button
+    <Button
         android:id="@+id/btnGetMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="22dp"
+        android:layout_marginTop="10dp"
         android:text="get_messages" />
-        
-        <Button
+
+    <Button
+        android:id="@+id/btnInsertMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="insert_messages" />
+
+    <Button
         android:id="@+id/btnCallLogs"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="22dp"
+        android:layout_marginTop="10dp"
         android:text="get_callLogs" />
-        
-           <Button
+
+    <Button
+        android:id="@+id/btnInsertCallLogs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="insert callLogs" />
+
+    <Button
         android:id="@+id/btnContacts"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="22dp"
+        android:layout_marginTop="10dp"
         android:text="get_contacts" />
+
+    <Button
+        android:id="@+id/btnInsertContacts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="insert_contacts" />
+
 </LinearLayout>

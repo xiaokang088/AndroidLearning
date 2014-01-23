@@ -6,9 +6,17 @@ import android.provider.CallLog;
 import android.provider.Contacts;
 import android.provider.ContactsContract;
 import android.provider.Contacts.People;
+import android.provider.ContactsContract.CommonDataKinds.Email;
+import android.provider.ContactsContract.CommonDataKinds.Organization;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.ContactsContract.CommonDataKinds.StructuredName;
+import android.provider.ContactsContract.Data;
+import android.provider.ContactsContract.RawContacts;
 import android.provider.MediaStore;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
@@ -42,7 +50,15 @@ public class MainActivity extends Activity implements
 
 		Button btnContacts = (Button) this.findViewById(R.id.btnContacts);
 		btnContacts.setOnClickListener(this);
-
+		
+		Button btnInsertMessage = (Button) this.findViewById(R.id.btnInsertMessage);
+		btnInsertMessage.setOnClickListener(this);
+		
+		Button btnInsertContacts = (Button) this.findViewById(R.id.btnInsertContacts);
+		btnInsertContacts.setOnClickListener(this);
+		
+		Button btnInsertCallLogs = (Button) this.findViewById(R.id.btnInsertCallLogs);
+		btnInsertCallLogs.setOnClickListener(this);
 	}
 
 	@Override
@@ -55,171 +71,275 @@ public class MainActivity extends Activity implements
 	public void onClick(View view) {
 		Context mContext = getApplicationContext();
 		ContentResolver cr = mContext.getContentResolver();
+		int id = view.getId();
 
-		if (view.getId() == R.id.btnGetPictures) {
-
-			String columns[] = new String[] { MediaStore.Images.ImageColumns.DATA };
-			// Uri[] mUri= new
-			// Uri[]{MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-			// MediaStore.Images.Media.INTERNAL_CONTENT_URI }
-			Uri mUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-			Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-			Uri videoUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-			// String[] selection= new String[] { MediaInfoNames.DCIM_DIR,
-			// MediaInfoNames.PICTURES_DIR, MediaInfoNames.DEFAULT_FS_DIR, }
-			Cursor mResult = cr.query(mUri, columns, null, null, null);
-
-			boolean isNull = mResult == null;
-
-			int size = mResult.getCount();
-			Toast.makeText(this, "count:" + Integer.toString(size),
-					Toast.LENGTH_SHORT).show();
-			String[] columnNames = mResult.getColumnNames();
-
-			if (mResult.moveToFirst()) {
-				do {
-					String path = mResult
-							.getString(mResult
-									.getColumnIndex(MediaStore.Images.ImageColumns.DATA));
-
-					Toast.makeText(this, path, Toast.LENGTH_SHORT).show();
-				} while (mResult.moveToNext());
-			}
+		switch (id) {
+		case R.id.btnGetPictures: {
+			getImages(cr);
+			break;
 		}
-
-		if (view.getId() == R.id.btnGetMessage) {
-
-			Uri smsUri = Uri.parse("content://sms");
-			String[] showColumns = new String[] { "thread_id", "address",
-					"body", "date", "read", "seen" };
-			Cursor smsCursor = cr.query(smsUri, null, null, null, null);
-
-			int smsSize = smsCursor.getCount();
-			Log.i(TAG, "count:" + smsSize);
-			int smsColumns = smsCursor.getColumnCount();
-			String[] columnNames = smsCursor.getColumnNames();
-
-			int i = 0;
-			for (String columnName : columnNames) {
-				Log.i(TAG, "Column Name " + Integer.toString(i) + ":	 "
-						+ columnName);
-				i++;
-			}
-
-			i = 0;
-			if (smsCursor.moveToFirst()) {
-				do {
-					String body = smsCursor.getString(smsCursor
-							.getColumnIndex("body"));
-					String address = smsCursor.getString(smsCursor
-							.getColumnIndex("address"));
-					String date = smsCursor.getString(smsCursor
-							.getColumnIndex("date"));
-
-					String content = String.format(
-							" date:%s  address:%s  body:%s ", date, address,
-							body);
-					Log.i(TAG, content);
-					i++;
-				} while (smsCursor.moveToNext());
-			}
+		case R.id.btnGetMessage: {
+			getSms(cr);
+			break;
 		}
-
-		if (view.getId() == R.id.btnContacts) {
-
-			String testTag = "Contacts";
-			Uri contactUri = ContactsContract.Data.CONTENT_URI;
-			Cursor contactCursor = cr.query(contactUri, null, null, null, null);
-
-			int contactSize = contactCursor.getCount();
-			Log.i(testTag, "count:" + contactSize);
-
-			int contactColumns = contactCursor.getColumnCount();
-			String[] columnNames = contactCursor.getColumnNames();
-
-			int i = 0;
-			for (String columnName : columnNames) {
-				Log.i(testTag, "Column Name " + Integer.toString(i) + ":	 "
-						+ columnName);
-				i++;
-			}
-
-			i = 0;
-			if (contactCursor.moveToFirst()) {
-				do {
-					String displayName = contactCursor
-							.getString(contactCursor
-									.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-					Log.i(testTag, "displayName:" + displayName);
-
-					int phoneCount = contactCursor
-							.getInt(contactCursor
-									.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
-
-					if (phoneCount > 0) {
-						Cursor phones = cr
-								.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-										null,
-										ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
-										null, null);
-
-						if (phones.moveToFirst()) {
-							do {
-								String phoneNumber = phones
-										.getString(phones
-												.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-								Log.i(testTag, "phoneNumber:" + phoneNumber);
-
-							} while (phones.moveToNext());
-						}
-					}
-
-					i++;
-				} while (contactCursor.moveToNext());
-			}
+		case R.id.btnContacts: {
+			getContacts(cr);
+			break;
 		}
-
-		if (view.getId() == R.id.btnCallLogs) {
-
-			String testTag = "CallLog";
-			Uri smsUri = CallLog.Calls.CONTENT_URI;
-			Cursor callLogCursor = cr.query(smsUri, null, null, null,
-					CallLog.Calls.DEFAULT_SORT_ORDER);
-
-			int callLogSize = callLogCursor.getCount();
-			Log.i(testTag, "count:" + callLogSize);
-
-			int callLogColumns = callLogCursor.getColumnCount();
-			String[] columnNames = callLogCursor.getColumnNames();
-
-			int i = 0;
-			for (String columnName : columnNames) {
-				Log.i(testTag, "Column Name " + Integer.toString(i) + ":	 "
-						+ columnName);
-				i++;
-			}
-
-			i = 0;
-			if (callLogCursor.moveToFirst()) {
-				do {
-					String realnumber = callLogCursor.getString(callLogCursor
-							.getColumnIndex("number"));
-					String type = callLogCursor.getString(callLogCursor
-							.getColumnIndex("type"));
-					String date = callLogCursor.getString(callLogCursor
-							.getColumnIndex("date"));
-
-					String content = String.format(
-							" realnumber:%s  type:%s  date:%s ", realnumber,
-							type, date);
-					Log.i(testTag, content);
-					i++;
-				} while (callLogCursor.moveToNext());
-			}
+		case R.id.btnCallLogs: {
+			getCallLog(cr);
+			break;
 		}
-
+		case R.id.btnInsertMessage: {
+			insertSms(cr);
+			break;
+		}
+		case R.id.btnInsertContacts:{
+			insertContacts(cr);
+			break;
+		}
+		case R.id.btnInsertCallLogs:{
+			this.insertCallLog(cr);
+			break;
+		}
+		}
 	}
 
+	void getSms(ContentResolver cr) {
+		Uri smsUri = Uri.parse("content://sms");
+		String[] showColumns = new String[] { "thread_id", "address", "body",
+				"date", "read", "seen" };
+		Cursor smsCursor = cr.query(smsUri, null, null, null, null);
+
+		int smsSize = smsCursor.getCount();
+		Log.i(TAG, "count:" + smsSize);
+		int smsColumns = smsCursor.getColumnCount();
+		String[] columnNames = smsCursor.getColumnNames();
+
+		int i = 0;
+		for (String columnName : columnNames) {
+			Log.i(TAG, "Column Name " + Integer.toString(i) + ":	 "
+					+ columnName);
+			i++;
+		}
+
+		i = 0;
+		if (smsCursor.moveToFirst()) {
+			do {
+				String body = smsCursor.getString(smsCursor
+						.getColumnIndex("body"));
+				String address = smsCursor.getString(smsCursor
+						.getColumnIndex("address"));
+				String date = smsCursor.getString(smsCursor
+						.getColumnIndex("date"));
+
+				String content = String.format(
+						" date:%s  address:%s  body:%s ", date, address, body);
+				Log.i(TAG, content);
+				i++;
+			} while (smsCursor.moveToNext());
+		}
+	}
+
+	void insertSms(ContentResolver cr) {
+		try {
+			Uri smsUri = Uri.parse("content://sms");
+			ContentValues values = new ContentValues();
+			values.put("body", "testSms");
+			values.put("address", "15906819533");
+			cr.insert(smsUri, values);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	void getImages(ContentResolver cr) {
+		String columns[] = new String[] { MediaStore.Images.ImageColumns.DATA };
+		// Uri[] mUri= new
+		// Uri[]{MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+		// MediaStore.Images.Media.INTERNAL_CONTENT_URI }
+		Uri mUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+		Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+		Uri videoUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+		// String[] selection= new String[] { MediaInfoNames.DCIM_DIR,
+		// MediaInfoNames.PICTURES_DIR, MediaInfoNames.DEFAULT_FS_DIR, }
+		Cursor mResult = cr.query(mUri, columns, null, null, null);
+
+		boolean isNull = mResult == null;
+
+		int size = mResult.getCount();
+		Toast.makeText(this, "count:" + Integer.toString(size),
+				Toast.LENGTH_SHORT).show();
+		String[] columnNames = mResult.getColumnNames();
+
+		if (mResult.moveToFirst()) {
+			do {
+				String path = mResult.getString(mResult
+						.getColumnIndex(MediaStore.Images.ImageColumns.DATA));
+
+				Toast.makeText(this, path, Toast.LENGTH_SHORT).show();
+			} while (mResult.moveToNext());
+		}
+	}
+
+	void getCallLog(ContentResolver cr) {
+		String testTag = "CallLog";
+		Uri smsUri = CallLog.Calls.CONTENT_URI;
+		Cursor callLogCursor = cr.query(smsUri, null, null, null,
+				CallLog.Calls.DEFAULT_SORT_ORDER);
+
+		int callLogSize = callLogCursor.getCount();
+		Log.i(testTag, "count:" + callLogSize);
+
+		int callLogColumns = callLogCursor.getColumnCount();
+		String[] columnNames = callLogCursor.getColumnNames();
+
+		int i = 0;
+		for (String columnName : columnNames) {
+			Log.i(testTag, "Column Name " + Integer.toString(i) + ":	 "
+					+ columnName);
+			i++;
+		}
+
+		i = 0;
+		if (callLogCursor.moveToFirst()) {
+			do {
+				String realnumber = callLogCursor.getString(callLogCursor
+						.getColumnIndex("number"));
+				String type = callLogCursor.getString(callLogCursor
+						.getColumnIndex("type"));
+				String date = callLogCursor.getString(callLogCursor
+						.getColumnIndex("date"));
+
+				String content = String.format(
+						" realnumber:%s  type:%s  date:%s ", realnumber, type,
+						date);
+				Log.i(testTag, content);
+				i++;
+			} while (callLogCursor.moveToNext());
+		}
+	}
+
+	void insertCallLog(ContentResolver cr){
+		try{
+			ContentValues values = new ContentValues();
+			values.put(CallLog.Calls.NUMBER, "15906819565");
+			 
+			values.put(CallLog.Calls.TYPE, CallLog.Calls.INCOMING_TYPE);
+			values.put(CallLog.Calls.DATE , System.currentTimeMillis());
+			values.put(CallLog.Calls.DURATION, "20");
+			values.put(CallLog.Calls.NEW, "1");
+			cr.insert(CallLog.Calls.CONTENT_URI, values);
+		} catch(Exception ex){
+			ex.printStackTrace();
+		}
+	}
+	
+	void getContacts(ContentResolver cr) {
+
+		String testTag = "Contacts";
+		Uri contactUri = ContactsContract.Data.CONTENT_URI;
+		Cursor contactCursor = cr.query(contactUri, null, null, null, null);
+
+		int contactSize = contactCursor.getCount();
+		Log.i(testTag, "count:" + contactSize);
+
+		int contactColumns = contactCursor.getColumnCount();
+		String[] columnNames = contactCursor.getColumnNames();
+
+		int i = 0;
+		for (String columnName : columnNames) {
+			Log.i(testTag, "Column Name " + Integer.toString(i) + ":	 "
+					+ columnName);
+			i++;
+		}
+
+		i = 0;
+		if (contactCursor.moveToFirst()) {
+			do {
+				String displayName = contactCursor
+						.getString(contactCursor
+								.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+				Log.i(testTag, "displayName:" + displayName);
+
+				int phoneCount = contactCursor
+						.getInt(contactCursor
+								.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+
+				if (phoneCount > 0) {
+					Cursor phones = cr.query(
+							ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+							null,
+							ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+							null, null);
+
+					if (phones.moveToFirst()) {
+						do {
+							String phoneNumber = phones
+									.getString(phones
+											.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+							Log.i(testTag, "phoneNumber:" + phoneNumber);
+
+						} while (phones.moveToNext());
+					}
+				}
+
+				i++;
+			} while (contactCursor.moveToNext());
+		}
+	}
+
+	void insertContacts(ContentResolver cr) {
+		try {
+			ContentValues values = new ContentValues();
+
+			//首先向RawContacts.CONTENT_URI执行一个空值插入，目的是获取系统返回的rawContactId
+			Uri rawContactUri = cr.insert(RawContacts.CONTENT_URI, values);
+			long rawContactId = ContentUris.parseId(rawContactUri);
+			values.clear();
+			values.put(Data.RAW_CONTACT_ID, rawContactId); 
+			// 设置内容类型
+			values.put(Data.MIMETYPE, StructuredName.CONTENT_ITEM_TYPE);
+			// 设置联系人名字
+			values.put(StructuredName.GIVEN_NAME, "testName");
+			// 向联系人URI添加联系人名字
+			cr.insert(android.provider.ContactsContract.Data.CONTENT_URI, values);
+
+			values.clear();
+			values.put(Data.RAW_CONTACT_ID, rawContactId);
+			values.put(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE);
+			// 设置联系人的电话号码
+			values.put(Phone.NUMBER, "15906819533");
+			// 设置电话类型
+			values.put(Phone.TYPE, Phone.TYPE_MOBILE);
+			// 向联系人电话号码URI添加电话号码
+			cr.insert(android.provider.ContactsContract.Data.CONTENT_URI, values);
+
+			values.clear();
+			values.put(Data.RAW_CONTACT_ID, rawContactId);
+			values.put(Data.MIMETYPE, Email.CONTENT_ITEM_TYPE);
+			// 设置联系人的Email地址
+			values.put(Email.DATA, "xx@x.com");
+			// 设置该电子邮件的类型
+			values.put(Email.TYPE, Email.TYPE_WORK);
+			// 向联系人Email URI添加Email数据
+			cr.insert(android.provider.ContactsContract.Data.CONTENT_URI, values);
+
+			values.clear();
+			values.put(Data.RAW_CONTACT_ID, rawContactId);
+			values.put(Data.MIMETYPE, Organization.CONTENT_ITEM_TYPE);
+			// 设置联系人的公司地址
+			values.put(Organization.DATA, "三大街");
+			// 设置该公司地址的类型
+			values.put(Organization.TYPE, Organization.TYPE_WORK);
+			// 向联系人公司地址 URI添加公司地址数据
+			cr.insert(
+			android.provider.ContactsContract.Data.CONTENT_URI, values);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
 	interface Uris {
 		static final Uri SMS_ALL = Uri.parse("content://sms");
 		static final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
@@ -466,4 +586,5 @@ public class MainActivity extends Activity implements
 		 * 12-30 14:41:34.950: I/CallLog(13376): Column Name 49: voicemail_uri
 		 */
 	}
+
 }
