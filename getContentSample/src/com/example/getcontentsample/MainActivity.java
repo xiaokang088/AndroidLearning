@@ -1,5 +1,9 @@
 package com.example.getcontentsample;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CallLog;
@@ -19,10 +23,12 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,15 +36,16 @@ public class MainActivity extends Activity implements
 		android.view.View.OnClickListener {
 
 	String TAG = "SMSTest";
-
+	ImageView imgView;
 	TextView txtResult;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
-		txtResult = (TextView) this.findViewById(R.id.txtResult);
+		
+		imgView = (ImageView)this.findViewById(R.id.imgShow);
+		
 		Button btnGetPictures = (Button) this.findViewById(R.id.btnGetPictures);
 		btnGetPictures.setOnClickListener(this);
 
@@ -171,15 +178,40 @@ public class MainActivity extends Activity implements
 		Toast.makeText(this, "count:" + Integer.toString(size),
 				Toast.LENGTH_SHORT).show();
 		String[] columnNames = mResult.getColumnNames();
-
+		String path = null;
 		if (mResult.moveToFirst()) {
 			do {
-				String path = mResult.getString(mResult
+				  path = mResult.getString(mResult
 						.getColumnIndex(MediaStore.Images.ImageColumns.DATA));
 
 				Toast.makeText(this, path, Toast.LENGTH_SHORT).show();
 			} while (mResult.moveToNext());
 		}
+		
+		File file = new File(path);
+		Uri imgUri =  Uri.fromFile(file);
+		//imgView.setImageURI(imgUri);
+		
+		Bitmap bmp;
+		try {
+			bmp = MediaStore.Images.Media.getBitmap(cr, Uri.fromFile(file));
+			imgView.setImageBitmap(bmp);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+	
+	void showImage(){
+		
+	}
+	
+	void downloadImage(){
+		
 	}
 
 	void getCallLog(ContentResolver cr) {
