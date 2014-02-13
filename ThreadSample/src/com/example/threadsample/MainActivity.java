@@ -32,7 +32,7 @@ public class MainActivity extends Activity implements
 		android.view.View.OnClickListener {
 
 	TextView txtMessage;
-	String Tag = "AsyncTest";
+	String Tag = "TheadSample";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +48,9 @@ public class MainActivity extends Activity implements
 		
 		Button btnDelayThread = (Button) this.findViewById(R.id.btnDelayThread);
 		btnDelayThread.setOnClickListener(this);
+		
+		Button btnSynchronized = (Button) this.findViewById(R.id.btnSynchronized);
+		btnSynchronized.setOnClickListener(this);
 	}
 
 	@Override
@@ -92,9 +95,12 @@ public class MainActivity extends Activity implements
 				} 
 				
 				
-			}, 2000);
+			}, 1000);
 		}
 		
+		if (arg0.getId() == R.id.btnSynchronized) {
+			testSynchronized();
+		}
 	}
 	
 	
@@ -128,6 +134,34 @@ public class MainActivity extends Activity implements
 			}
 		});
 		thread.start();
+	}
+
+	void testSynchronized() {
+		/*
+		 * new Thread(new TestSync(),"first").start(); new Thread(new
+		 * TestSync(),"second").start();
+		 */
+
+		new Thread(new Runnable() {
+			ResourceHelper helper = new ResourceHelper();
+
+			@Override
+			public void run() {
+				helper.getorder();
+				helper.order();
+			}	
+		},"third").start();
+		
+		new Thread(new Runnable() {
+			ResourceHelper helper = new ResourceHelper();
+
+			@Override
+			public void run() {
+				helper.getorder();
+				// TODO Auto-generated method stub
+				helper.order();
+			}	
+		},"forth").start();
 	}
 
 	class Pagetask extends AsyncTask<String, Integer, String> {
@@ -222,6 +256,39 @@ public class MainActivity extends Activity implements
 			Log.i(Tag, msg);
 			txtMessage.setText(msg);
 			pdialog.setProgress(values[0]);
+		}
+	}
+
+	class TestSync implements Runnable {
+
+		@Override
+		public void run() {
+			String threadName = Thread.currentThread().getName();
+			Log.i(Tag, "i'm comming: " + threadName );
+			
+			synchronized (this) {
+				for (int i = 0; i < 10; i++) {
+					Log.i(Tag, "synchronized loop "+ threadName + " " + Integer.toString(i));
+				}
+			}
+		}
+	}
+	
+	class ResourceHelper{
+		
+		
+		
+		public String getorder(){
+			String threadName = Thread.currentThread().getName();
+			Log.i(Tag, "get order "+ threadName);
+			return "this resource";
+		}
+		
+		public synchronized void order(){
+			String threadName = Thread.currentThread().getName();
+			for (int i = 0; i < 10; i++) {
+				Log.i(Tag, "order "+ threadName + " " + Integer.toString(i));
+			}
 		}
 	}
 

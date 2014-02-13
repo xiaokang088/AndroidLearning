@@ -31,6 +31,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="thread Delay Task" />
+
+          <Button
+              android:id="@+id/btnSynchronized"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="10dp"
+              android:text="test Synchronized" />
    
     <TextView
         android:id="@+id/textProgress"

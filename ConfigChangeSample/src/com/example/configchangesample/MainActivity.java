@@ -43,5 +43,7 @@ public class MainActivity extends Activity {
 			textView1.setText("ORIENTATION_PORTRAIT");
 		}
 		
+		 
+		
 	}
 }

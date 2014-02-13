@@ -66,6 +66,9 @@ public class MainActivity extends Activity implements
 		
 		Button btnInsertCallLogs = (Button) this.findViewById(R.id.btnInsertCallLogs);
 		btnInsertCallLogs.setOnClickListener(this);
+		
+		Button btnUpdateContact = (Button) this.findViewById(R.id.btnUpdateContact);
+		btnUpdateContact.setOnClickListener(this);
 	}
 
 	@Override
@@ -107,6 +110,10 @@ public class MainActivity extends Activity implements
 		}
 		case R.id.btnInsertCallLogs:{
 			this.insertCallLog(cr);
+			break;
+		}
+		case R.id.btnUpdateContact:{
+			this.updateContacts(cr);
 			break;
 		}
 		}
@@ -270,21 +277,31 @@ public class MainActivity extends Activity implements
 	void getContacts(ContentResolver cr) {
 
 		String testTag = "Contacts";
+		
+		/*content://com.android.contacts/data
+		*/
 		Uri contactUri = ContactsContract.Data.CONTENT_URI;
+		////com.android.contacts/data
+		Uri rawUri =  RawContacts.CONTENT_URI;
+		//String selection = RawContacts.DELETED +" != 1";
+		//Cursor contactCursor = cr.query(contactUri, null, selection, null, null);
+
 		Cursor contactCursor = cr.query(contactUri, null, null, null, null);
 
 		int contactSize = contactCursor.getCount();
 		Log.i(testTag, "count:" + contactSize);
 
+	 
 		int contactColumns = contactCursor.getColumnCount();
 		String[] columnNames = contactCursor.getColumnNames();
 
+		
 		int i = 0;
-		for (String columnName : columnNames) {
+		/*for (String columnName : columnNames) {
 			Log.i(testTag, "Column Name " + Integer.toString(i) + ":	 "
 					+ columnName);
 			i++;
-		}
+		}*/
 
 		i = 0;
 		if (contactCursor.moveToFirst()) {
@@ -292,13 +309,27 @@ public class MainActivity extends Activity implements
 				String displayName = contactCursor
 						.getString(contactCursor
 								.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-				Log.i(testTag, "displayName:" + displayName);
+			 
+				if (!displayName.startsWith("C"))
+					continue;
+				
+				/*Log.i(testTag, "displayName:" + displayName);*/
+				
+				for (int j=0;j<contactColumns;j++){
+					String content = columnNames[j]+ " : " +contactCursor
+							.getString(j);
+					Log.i(testTag,  content);
+				}
+				
+				
+			 
+				
 
-				int phoneCount = contactCursor
+			/*	int phoneCount = contactCursor
 						.getInt(contactCursor
 								.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
-
-				if (phoneCount > 0) {
+*/
+			/*	if (phoneCount > 0) {
 					Cursor phones = cr.query(
 							ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
 							null,
@@ -314,9 +345,12 @@ public class MainActivity extends Activity implements
 
 						} while (phones.moveToNext());
 					}
-				}
+				}*/
 
 				i++;
+				
+				Log.i(testTag,"---------------------------------");
+				
 			} while (contactCursor.moveToNext());
 		}
 	}
@@ -370,6 +404,49 @@ public class MainActivity extends Activity implements
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+	}
+	
+	void updateContacts(ContentResolver cr){		
+		
+		String testTag = "Contacts";
+		int ret = -1;
+		try {
+			Uri contactUri = ContactsContract.Data.CONTENT_URI;
+			String selection = Data.DISPLAY_NAME +  " like 'C%' ";
+
+			ContentValues values = new ContentValues();
+			values.put(Data.IN_VISIBLE_GROUP, "1");
+
+			ret = cr.update(contactUri, values, selection, null);
+
+			String[] arr = new String[] { Data.IN_VISIBLE_GROUP,
+					Data.DISPLAY_NAME };
+
+			Cursor retCursor = cr.query(contactUri, arr, selection, null, null);
+
+			int contactSize = retCursor.getCount();
+			Log.i(testTag, "count:" + contactSize);
+
+		 
+			int contactColumns = retCursor.getColumnCount();
+			String[] columnNames = retCursor.getColumnNames();
+			
+			retCursor.moveToFirst();
+			
+		 do{
+			 
+			 int visible =  retCursor.getInt(0);
+			 String displayName = retCursor.getString(1);
+			 Log.i(testTag, "visible:" + Integer.toString(visible) + " displayName " + displayName);
+		 } while(retCursor.moveToNext());
+				
+			
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		Log.i(testTag, "update result:" + Integer.toString(ret));
+		
+		
 	}
 	
 	interface Uris {

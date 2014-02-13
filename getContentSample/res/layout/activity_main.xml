@@ -10,6 +10,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
+
     <Button
         android:id="@+id/btnGetPictures"
         android:layout_width="wrap_content"
@@ -52,6 +53,12 @@
         android:layout_height="wrap_content"
         android:text="insert_contacts" />
 
+    <Button
+        android:id="@+id/btnUpdateContact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="update contact" />
+    
     <ImageView
         android:id="@+id/imgShow"
         android:layout_width="wrap_content"
