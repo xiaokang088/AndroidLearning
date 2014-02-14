@@ -1,6 +1,7 @@
 package com.example.googledrivesample;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,6 +17,8 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpResponse;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.Drive.Children;
@@ -68,6 +71,7 @@ public class MainActivity extends Activity implements
 		setClick(R.id.btnUploadFile);
 		setClick(R.id.btnCreateEmptyFile);
 		setClick(R.id.btnDeleteFile);
+		setClick(R.id.btnDownLoadFile);
 		tvShow = (TextView) this.findViewById(R.id.tvShow);
 	}
 
@@ -172,6 +176,15 @@ public class MainActivity extends Activity implements
 				}
 			}).start();
 			
+			break;
+		}
+		case R.id.btnDownLoadFile:{
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					DownloadFile();
+				}
+			}).start();
 			break;
 		}
 		}
@@ -411,6 +424,43 @@ public class MainActivity extends Activity implements
 
 	}
 
+	void DownloadFile() {
+		String downloadID = "0B-QETmR0ODN3Vmt6cm1hV2JBZ28";
+		try {
+			 
+			File downloadFile =  myDrive.files().get(downloadID).execute();
+			String downloadURL = downloadFile.getDownloadUrl();
+
+			HttpResponse resp = myDrive.getRequestFactory()
+					.buildGetRequest(new GenericUrl(downloadURL)).execute();
+			
+			ManagedInputStream sourceStream =new  ManagedInputStream(resp.getContent());
+			
+			Date date = new Date(System.currentTimeMillis());
+			SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+			String fileName = format.format(date) + "test.jpg";
+			
+			String path = "/storage/sdcard0/DCIM/Camera/"+fileName;
+			java.io.File targetFile = new java.io.File(path);
+			if (targetFile.exists()) return ;
+			
+			 
+			FileOutputStream targetStream = new FileOutputStream(targetFile);
+			int BUFFER_SIZE = 40960;
+			byte[] b = new byte[BUFFER_SIZE];
+			int s = 0;
+			while (0 <= (s = sourceStream.read(b))) {
+				targetStream.write(b, 0, s);
+			}
+			sourceStream.close();
+			targetStream.close();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	String getMimeType(String url) {
 		if (url == null || url.lastIndexOf(".") < 0 || url.length() == 0)
 			return null;

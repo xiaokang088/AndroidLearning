@@ -10,7 +10,16 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
-    <TextView
+       <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+              <TextView
         android:id="@+id/tvShow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -52,7 +61,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Create Folder" />
-    
+
+ 
         <Button
         android:id="@+id/btnUploadFile"
         android:layout_width="wrap_content"
@@ -70,4 +80,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Delete new  File" />
+            
+                     <Button
+        android:id="@+id/btnDownLoadFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="download  File" />
+        </LinearLayout>
+    </ScrollView>
+    
+    
+  
 </LinearLayout>
