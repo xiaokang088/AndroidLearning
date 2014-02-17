@@ -22,7 +22,6 @@ public class MainActivity extends Activity implements android.view.View.OnClickL
 		setClickListener(R.id.btnNotification);
 		setClickListener(R.id.btnRegisterReceiver);
 		setClickListener(R.id.btnUnRegister);
-		
 	}
 
 	@Override
