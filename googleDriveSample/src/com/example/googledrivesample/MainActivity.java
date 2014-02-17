@@ -66,6 +66,7 @@ public class MainActivity extends Activity implements
 		setClick(R.id.btnCheckGoogleService);
 		setClick(R.id.btnInitOrSignIn);
 		setClick(R.id.btnGetInfo);
+		setClick(R.id.btnLogout);
 		setClick(R.id.btnGetAllFiles);
 		setClick(R.id.btnCreateFolders);
 		setClick(R.id.btnUploadFile);
@@ -199,11 +200,6 @@ public class MainActivity extends Activity implements
 
 			boolean ret = isGoogleServiceAvailable == com.google.android.gms.common.ConnectionResult.SUCCESS;
 
-			/*
-			 * boolean ret = GooglePlayServicesUtil
-			 * .isUserRecoverableError(isGoogleServiceAvailable);
-			 */
-
 			if (ret) {
 				tvShow.setText("GoogleService is available  ");
 				Log.i(TAG, "GoogleService is available");
@@ -219,11 +215,10 @@ public class MainActivity extends Activity implements
 	void initOrSignIn() throws IOException {
 		Set<String> rest = Collections.singleton(DriveScopes.DRIVE_FILE);
 		credential = GoogleAccountCredential.usingOAuth2(this, rest);
-
+		
 		SharedPreferences prefs = this.getSharedPreferences("gdrive",
 				Context.MODE_PRIVATE);
 		String accountName = prefs.getString(PREF_ACCOUNT_NAME, null);
-
 		credential.setSelectedAccountName(accountName);
 
 		appName = this.getString(R.string.app_name);
@@ -506,7 +501,6 @@ public class MainActivity extends Activity implements
 				}
 			}
 		}
-
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
