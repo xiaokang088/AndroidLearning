@@ -17,7 +17,7 @@ public class PullReceiver extends BroadcastReceiver {
 		 Intent newIntent = new Intent(context,MainActivity.class);
 		 newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		 newIntent.putExtra(Keys.PullKeyName, Keys.PullKey);
-		 context.startActivity(newIntent);
+		 //context.startActivity(newIntent);
 	}
  
 	static final long internal_one_minutes = 1  * 60 * 1000;

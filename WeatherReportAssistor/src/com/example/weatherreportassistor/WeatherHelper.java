@@ -174,12 +174,12 @@ public class WeatherHelper {
 		String cityDescrption = parms[22];
 
 		StringBuilder builder = new StringBuilder();
-		builder.append("City:%s\r\n temperature:%s\r\n summary:%s\r\n wind:%s\r\n realTime:%s\r\n ");
-		builder.append("\r\n---------------\r\n");
-		builder.append("tomorrow Temperature:%s\r\n summary:%s\r\n wind: %s\r\n ");
-		builder.append("\r\n---------------\r\n");
-		builder.append("the day after tomorrow  Temperature:%s\r\n summary:%s\r\n wind: %s\r\n ");
-		builder.append("\r\n---------------\r\n");
+		builder.append("城市：%s\r\n :%s\r\n  :%s\r\n  :%s\r\n 当前 :%s\r\n ");
+		builder.append("\r\n ");
+		builder.append("明天:%s\r\n  :%s\r\n  : %s\r\n ");
+		builder.append("\r\n  ");
+		builder.append("后天:%s\r\n  :%s\r\n  : %s\r\n ");
+		builder.append("\r\n ");
 		String content = String.format(builder.toString(), city, temperature,
 				summary, wind, realtimeSummary, secondTemperature,
 				secondSummary, secondWind, thirdTemperature, thirdSummary,
