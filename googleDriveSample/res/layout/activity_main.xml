@@ -10,7 +10,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
-       <ScrollView
+    <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
@@ -19,76 +19,73 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical" >
-              <TextView
-        android:id="@+id/tvShow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView" />
 
-    <Button
-        android:id="@+id/btnCheckGoogleService"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+            <TextView
+                android:id="@+id/tvShow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TextView" />
 
-        android:text="Check google Service" />
+            <Button
+                android:id="@+id/btnCheckGoogleService"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Check google Service" />
 
-    <Button
-        android:id="@+id/btnInitOrSignIn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="init or sign in google Service" />
+            <Button
+                android:id="@+id/btnInitOrSignIn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="init or sign in google Service" />
 
-       <Button
-        android:id="@+id/btnLogout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="logout" />
-    
-    <Button
-        android:id="@+id/btnGetInfo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="get totalspace/freespace" />
-    
-   <Button
-        android:id="@+id/btnGetAllFiles"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Get all Files" />
-   
-    <Button
-        android:id="@+id/btnCreateFolders"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Create Folder" />
+            <Button
+                android:id="@+id/btnLogout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="logout" />
 
- 
-        <Button
-        android:id="@+id/btnUploadFile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Upload File" />
-        
-           <Button
-        android:id="@+id/btnCreateEmptyFile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Create new  File" />
-           
-             <Button
-        android:id="@+id/btnDeleteFile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Delete new  File" />
-            
-                     <Button
-        android:id="@+id/btnDownLoadFile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="download  File" />
+            <Button
+                android:id="@+id/btnGetInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="get totalspace/freespace" />
+
+            <Button
+                android:id="@+id/btnGetAllFiles"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Get all Files" />
+
+            <Button
+                android:id="@+id/btnCreateFolders"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Create Folder" />
+
+            <Button
+                android:id="@+id/btnUploadFile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Upload File" />
+
+            <Button
+                android:id="@+id/btnCreateEmptyFile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Create new  File" />
+
+            <Button
+                android:id="@+id/btnDeleteFile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delete new  File" />
+
+            <Button
+                android:id="@+id/btnDownLoadFile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="download  File" />
         </LinearLayout>
     </ScrollView>
-    
-    
-  
+
 </LinearLayout>
