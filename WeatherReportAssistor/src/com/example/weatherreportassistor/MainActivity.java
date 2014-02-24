@@ -241,7 +241,7 @@ public class MainActivity extends Activity implements
 					@Override
 					public void run() {
 						tvShow.setText(content);
-						//myTTS.speak(content, TextToSpeech.QUEUE_FLUSH, null);
+						myTTS.speak(content, TextToSpeech.QUEUE_FLUSH, null);
 					}
 				});
 				isRunning = false;

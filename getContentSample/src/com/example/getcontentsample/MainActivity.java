@@ -43,9 +43,9 @@ public class MainActivity extends Activity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
-		imgView = (ImageView)this.findViewById(R.id.imgShow);
-		
+
+		imgView = (ImageView) this.findViewById(R.id.imgShow);
+
 		Button btnGetPictures = (Button) this.findViewById(R.id.btnGetPictures);
 		btnGetPictures.setOnClickListener(this);
 
@@ -57,17 +57,21 @@ public class MainActivity extends Activity implements
 
 		Button btnContacts = (Button) this.findViewById(R.id.btnContacts);
 		btnContacts.setOnClickListener(this);
-		
-		Button btnInsertMessage = (Button) this.findViewById(R.id.btnInsertMessage);
+
+		Button btnInsertMessage = (Button) this
+				.findViewById(R.id.btnInsertMessage);
 		btnInsertMessage.setOnClickListener(this);
-		
-		Button btnInsertContacts = (Button) this.findViewById(R.id.btnInsertContacts);
+
+		Button btnInsertContacts = (Button) this
+				.findViewById(R.id.btnInsertContacts);
 		btnInsertContacts.setOnClickListener(this);
-		
-		Button btnInsertCallLogs = (Button) this.findViewById(R.id.btnInsertCallLogs);
+
+		Button btnInsertCallLogs = (Button) this
+				.findViewById(R.id.btnInsertCallLogs);
 		btnInsertCallLogs.setOnClickListener(this);
-		
-		Button btnUpdateContact = (Button) this.findViewById(R.id.btnUpdateContact);
+
+		Button btnUpdateContact = (Button) this
+				.findViewById(R.id.btnUpdateContact);
 		btnUpdateContact.setOnClickListener(this);
 	}
 
@@ -104,15 +108,15 @@ public class MainActivity extends Activity implements
 			insertSms(cr);
 			break;
 		}
-		case R.id.btnInsertContacts:{
+		case R.id.btnInsertContacts: {
 			insertContacts(cr);
 			break;
 		}
-		case R.id.btnInsertCallLogs:{
+		case R.id.btnInsertCallLogs: {
 			this.insertCallLog(cr);
 			break;
 		}
-		case R.id.btnUpdateContact:{
+		case R.id.btnUpdateContact: {
 			this.updateContacts(cr);
 			break;
 		}
@@ -188,17 +192,17 @@ public class MainActivity extends Activity implements
 		String path = null;
 		if (mResult.moveToFirst()) {
 			do {
-				  path = mResult.getString(mResult
+				path = mResult.getString(mResult
 						.getColumnIndex(MediaStore.Images.ImageColumns.DATA));
 
 				Toast.makeText(this, path, Toast.LENGTH_SHORT).show();
 			} while (mResult.moveToNext());
 		}
-		
+
 		File file = new File(path);
-		Uri imgUri =  Uri.fromFile(file);
-		//imgView.setImageURI(imgUri);
-		
+		Uri imgUri = Uri.fromFile(file);
+		// imgView.setImageURI(imgUri);
+
 		Bitmap bmp;
 		try {
 			bmp = MediaStore.Images.Media.getBitmap(cr, Uri.fromFile(file));
@@ -212,13 +216,13 @@ public class MainActivity extends Activity implements
 		}
 
 	}
-	
-	void showImage(){
-		
+
+	void showImage() {
+
 	}
-	
-	void downloadImage(){
-		
+
+	void downloadImage() {
+
 	}
 
 	void getCallLog(ContentResolver cr) {
@@ -259,43 +263,45 @@ public class MainActivity extends Activity implements
 		}
 	}
 
-	void insertCallLog(ContentResolver cr){
-		try{
+	void insertCallLog(ContentResolver cr) {
+		try {
 			ContentValues values = new ContentValues();
 			values.put(CallLog.Calls.NUMBER, "15906819565");
-			 
+
 			values.put(CallLog.Calls.TYPE, CallLog.Calls.INCOMING_TYPE);
-			values.put(CallLog.Calls.DATE , System.currentTimeMillis());
+			values.put(CallLog.Calls.DATE, System.currentTimeMillis());
 			values.put(CallLog.Calls.DURATION, "20");
 			values.put(CallLog.Calls.NEW, "1");
 			cr.insert(CallLog.Calls.CONTENT_URI, values);
-		} catch(Exception ex){
+		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
-	
+
 	void getContacts(ContentResolver cr) {
 
 		String testTag = "Contacts";
+
+		// content://com.android.contacts/data
+		Uri dataUri = ContactsContract.Data.CONTENT_URI;
+
+		Uri authorityUri = ContactsContract.AUTHORITY_URI;
+
+		// content://com.android.contacts/raw_contacts
+		Uri rawUri = RawContacts.CONTENT_URI;
+
+		// String selection = RawContacts.DELETED +" != 1";
+		// Cursor contactCursor = cr.query(contactUri, null, selection, null,
+		// null);
+
+		Cursor contactCursor = cr.query(rawUri, null, null, null, null);	
 		
-		/*content://com.android.contacts/data
-		*/
-		Uri contactUri = ContactsContract.Data.CONTENT_URI;
-		////com.android.contacts/data
-		Uri rawUri =  RawContacts.CONTENT_URI;
-		//String selection = RawContacts.DELETED +" != 1";
-		//Cursor contactCursor = cr.query(contactUri, null, selection, null, null);
-
-		Cursor contactCursor = cr.query(contactUri, null, null, null, null);
-
 		int contactSize = contactCursor.getCount();
 		Log.i(testTag, "count:" + contactSize);
 
-	 
 		int contactColumns = contactCursor.getColumnCount();
 		String[] columnNames = contactCursor.getColumnNames();
 
-		
 		int i = 0;
 		/*for (String columnName : columnNames) {
 			Log.i(testTag, "Column Name " + Integer.toString(i) + ":	 "
@@ -309,27 +315,59 @@ public class MainActivity extends Activity implements
 				String displayName = contactCursor
 						.getString(contactCursor
 								.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-			 
-				if (!displayName.startsWith("C"))
-					continue;
-				
-				/*Log.i(testTag, "displayName:" + displayName);*/
-				
-				for (int j=0;j<contactColumns;j++){
-					String content = columnNames[j]+ " : " +contactCursor
-							.getString(j);
-					Log.i(testTag,  content);
-				}
-				
-				
-			 
-				
 
-			/*	int phoneCount = contactCursor
+				 
+				/*  if (!displayName.startsWith("C")) continue;*/
+				 
+			 	Log.i(testTag, "displayName:" + displayName); 
+
+				
+			/*	for (int j = 0; j < contactColumns; j++) {
+					String content = columnNames[j] + " : "
+							+ contactCursor.getString(j);
+					Log.i(testTag, content);
+				}*/
+
+				 int id =contactCursor.getInt(contactCursor.getColumnIndex(ContactsContract.RawContacts.CONTACT_ID));
+
+				 if (id!=7)
+					 continue;
+				 
+				 String selection = RawContacts.CONTACT_ID +" == " + id;
+				 
+				Cursor dataCursor = cr.query(dataUri, null, selection, null,
+						null);
+
+				String[] dataCollumns = dataCursor.getColumnNames();
+				int dataCount = dataCursor.getCount();
+
+				if (dataCount > 0) {
+					if (dataCursor.moveToFirst()) {
+						Log.i(testTag, "<<<<<<<<<<<<<<<<<<<<<<<<<<");
+						do {
+						
+							for (String dataColumn : dataCollumns) {
+								try{
+								Log.i(testTag,
+										dataColumn
+												+ " : "
+												+ dataCursor.getString(dataCursor
+														.getColumnIndex(dataColumn)));
+								} catch (Exception ex){
+									ex.printStackTrace();
+								}
+								
+							}
+							
+						} while (dataCursor.moveToNext());
+						Log.i(testTag, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+					}
+				}
+				/*int phoneCount = contactCursor
 						.getInt(contactCursor
 								.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
-*/
-			/*	if (phoneCount > 0) {
+
+				if (phoneCount > 0) {
 					Cursor phones = cr.query(
 							ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
 							null,
@@ -348,9 +386,9 @@ public class MainActivity extends Activity implements
 				}*/
 
 				i++;
-				
-				Log.i(testTag,"---------------------------------");
-				
+
+				Log.i(testTag, "---------------------------------");
+
 			} while (contactCursor.moveToNext());
 		}
 	}
@@ -359,17 +397,18 @@ public class MainActivity extends Activity implements
 		try {
 			ContentValues values = new ContentValues();
 
-			//首先向RawContacts.CONTENT_URI执行一个空值插入，目的是获取系统返回的rawContactId
+			// 首先向RawContacts.CONTENT_URI执行一个空值插入，目的是获取系统返回的rawContactId
 			Uri rawContactUri = cr.insert(RawContacts.CONTENT_URI, values);
 			long rawContactId = ContentUris.parseId(rawContactUri);
 			values.clear();
-			values.put(Data.RAW_CONTACT_ID, rawContactId); 
+			values.put(Data.RAW_CONTACT_ID, rawContactId);
 			// 设置内容类型
 			values.put(Data.MIMETYPE, StructuredName.CONTENT_ITEM_TYPE);
 			// 设置联系人名字
 			values.put(StructuredName.GIVEN_NAME, "testName");
 			// 向联系人URI添加联系人名字
-			cr.insert(android.provider.ContactsContract.Data.CONTENT_URI, values);
+			cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
+					values);
 
 			values.clear();
 			values.put(Data.RAW_CONTACT_ID, rawContactId);
@@ -379,7 +418,8 @@ public class MainActivity extends Activity implements
 			// 设置电话类型
 			values.put(Phone.TYPE, Phone.TYPE_MOBILE);
 			// 向联系人电话号码URI添加电话号码
-			cr.insert(android.provider.ContactsContract.Data.CONTENT_URI, values);
+			cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
+					values);
 
 			values.clear();
 			values.put(Data.RAW_CONTACT_ID, rawContactId);
@@ -389,7 +429,8 @@ public class MainActivity extends Activity implements
 			// 设置该电子邮件的类型
 			values.put(Email.TYPE, Email.TYPE_WORK);
 			// 向联系人Email URI添加Email数据
-			cr.insert(android.provider.ContactsContract.Data.CONTENT_URI, values);
+			cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
+					values);
 
 			values.clear();
 			values.put(Data.RAW_CONTACT_ID, rawContactId);
@@ -399,20 +440,20 @@ public class MainActivity extends Activity implements
 			// 设置该公司地址的类型
 			values.put(Organization.TYPE, Organization.TYPE_WORK);
 			// 向联系人公司地址 URI添加公司地址数据
-			cr.insert(
-			android.provider.ContactsContract.Data.CONTENT_URI, values);
+			cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
+					values);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
-	
-	void updateContacts(ContentResolver cr){		
-		
+
+	void updateContacts(ContentResolver cr) {
+
 		String testTag = "Contacts";
 		int ret = -1;
 		try {
 			Uri contactUri = ContactsContract.Data.CONTENT_URI;
-			String selection = Data.DISPLAY_NAME +  " like 'C%' ";
+			String selection = Data.DISPLAY_NAME + " like 'C%' ";
 
 			ContentValues values = new ContentValues();
 			values.put(Data.IN_VISIBLE_GROUP, "1");
@@ -427,28 +468,26 @@ public class MainActivity extends Activity implements
 			int contactSize = retCursor.getCount();
 			Log.i(testTag, "count:" + contactSize);
 
-		 
 			int contactColumns = retCursor.getColumnCount();
 			String[] columnNames = retCursor.getColumnNames();
-			
+
 			retCursor.moveToFirst();
-			
-		 do{
-			 
-			 int visible =  retCursor.getInt(0);
-			 String displayName = retCursor.getString(1);
-			 Log.i(testTag, "visible:" + Integer.toString(visible) + " displayName " + displayName);
-		 } while(retCursor.moveToNext());
-				
-			
+
+			do {
+
+				int visible = retCursor.getInt(0);
+				String displayName = retCursor.getString(1);
+				Log.i(testTag, "visible:" + Integer.toString(visible)
+						+ " displayName " + displayName);
+			} while (retCursor.moveToNext());
+
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 		Log.i(testTag, "update result:" + Integer.toString(ret));
-		
-		
+
 	}
-	
+
 	interface Uris {
 		static final Uri SMS_ALL = Uri.parse("content://sms");
 		static final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
