@@ -8,4 +8,12 @@ public class link {
 	//http://en.wikipedia.org/wiki/VCard
 	//http://en.wikipedia.org/wiki/Versit_Consortium
 	//http://baike.baidu.com/view/495045.htm
+	//http://www.imc.org/pdi/
+	
+	
+	//add uid
+	//add note
+	//add rev
+	//add CATEGORIES
+	//update adr
 }

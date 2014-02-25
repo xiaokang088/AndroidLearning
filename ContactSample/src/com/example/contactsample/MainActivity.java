@@ -13,13 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import a_vcard.android.syncml.pim.PropertyNode;
-import a_vcard.android.syncml.pim.VDataBuilder;
-import a_vcard.android.syncml.pim.VNode;
-import a_vcard.android.syncml.pim.vcard.ContactStruct;
-import a_vcard.android.syncml.pim.vcard.VCardComposer;
-import a_vcard.android.syncml.pim.vcard.VCardException;
-import a_vcard.android.syncml.pim.vcard.VCardParser;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -105,127 +98,41 @@ public class MainActivity extends Activity implements
 	}
 
 	void read() {
-		// Read from phone to Vcard
-		OutputStreamWriter writer = null;
-		File SDCardFile = Environment.getExternalStorageDirectory();
-		path = SDCardFile + "/a.vcard";
-		
-		try {
-			writer = new OutputStreamWriter(new FileOutputStream(path), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		VCardComposer composer = new VCardComposer();
-
-		// create a contact
-		ContactStruct contact1 = new ContactStruct();
-		contact1.name = "Neo";
-		contact1.company = "The Company";
-		contact1.addPhone(Contacts.Phones.TYPE_MOBILE, "+123456789", null, true);
-	 
-		
-		// create vCard representation
-		String vcardString;
-		try {
-			vcardString = composer.createVCard(contact1,
-					VCardComposer.VERSION_VCARD30_INT);
-
-			writer.write(vcardString);
-
-			writer.write("\n"); // add empty lines between contacts
-
-			// repeat for other contacts
-			// ...
-
-			writer.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (VCardException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		 
 	}
 
 	void write() {
 
-		try {
-			VCardParser parser = new VCardParser();
-			VDataBuilder builder = new VDataBuilder();
-			
-			// read whole file to string
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					new FileInputStream(path), "UTF-8"));
-
-			String vcardString = "";
-			String line;
-			while ((line = reader.readLine()) != null) {
-				vcardString += line + "\n";
-			}
-			reader.close();
-
-			// parse the string
-			boolean parsed = parser.parse(vcardString, "UTF-8", builder);
-			if (!parsed) {
-				throw new VCardException("Could not parse vCard file: " + path);
-			}
-
-			// get all parsed contacts
-			List<VNode> pimContacts = builder.vNodeList;
-
-			// do something for all the contacts
-			for (VNode contact : pimContacts) {
-				ArrayList<PropertyNode> props = contact.propList;
-
-				// contact name - FN property
-				String name = null;
-				for (PropertyNode prop : props) {
-					if ("FN".equals(prop.propName)) {
-						name = prop.propValue;
-						// we have the name now
-						break;
-					}
-				}
-
-				// similarly for other properties (N, ORG, TEL, etc)
-				// ...
-
-				System.out.println("Found contact: " + name);
-			}
-		} catch (Exception ex) {
-
-		}
+		 
 	}
 
 	void getContacts() {				
 		ContentResolver cr = this.getContentResolver();
 		// content://com.android.contacts/raw_contacts
 		Uri rawUri = RawContacts.CONTENT_URI;
-		String[] projections = new String[] { ContactsContract.RawContacts.CONTACT_ID };
+		String[] projections = new String[] { ContactsContract.RawContacts.CONTACT_ID, ContactsContract.Data.DISPLAY_NAME };
 		Cursor rawContactCursor = cr.query(rawUri, projections, null, null, null);
 		
 		rawContactCursor.moveToFirst();	
 		List<Integer> contactids = new ArrayList<Integer>();
 		do{
 			int id = rawContactCursor.getInt(0);
+			String name = rawContactCursor.getString(1);
+			if (name.equalsIgnoreCase("gg111"))
+				continue;
 			contactids.add(id);
 		} while(rawContactCursor.moveToNext());
 		rawContactCursor.close();
 		
 		for(int contactID :contactids){			
-			ContactStruct contactStruct =  getContactSturt(contactID,cr);
+			VCardStruct contactStruct =  getContactSturt(contactID,cr);
 			WriteToVCard(contactStruct);
 		}
 		 
 	}
 	
-	ContactStruct getContactSturt(int contactID, ContentResolver cr){		
-		ContactStruct contactStuct = new ContactStruct();
+	VCardStruct getContactSturt(int contactID, ContentResolver cr){		
+		VCardStruct contactStuct = new VCardStruct();
 		String selectoin = RawContacts.CONTACT_ID + " == " + contactID;
 		Cursor dataCursor = cr.query(dataUri, dataProjections, selectoin, null,
 				null);
@@ -277,52 +184,13 @@ public class MainActivity extends Activity implements
 		return contactStuct;
 	}
 	
-	void WriteToVCard(ContactStruct contactStruct){
-	 
-		File SDCardFile = Environment.getExternalStorageDirectory();
-		Random generator = new Random();
-		int random = generator.nextInt(99999);
-		
-		path = SDCardFile + "/" + contactStruct.name + random +".vcf";
-
-		OutputStreamWriter writer = null;
-		try {
-			writer = new OutputStreamWriter(new FileOutputStream(path), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		VCardComposer composer = new VCardComposer();
-
-		// create vCard representation
-		String vcardString;
-		try {
-			vcardString = composer.createVCard(contactStruct,
-					VCardComposer.VERSION_VCARD30_INT);
-
-			writer.write(vcardString);
-
-			writer.write("\n"); // add empty lines between contacts
-
-			// repeat for other contacts
-			// ...
-
-			writer.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (VCardException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	void WriteToVCard(VCardStruct contactStruct){	
+		String relativePath = contactStruct.name   + ".vcf";
+		String content = contactStruct.ToVCardContent();
+		FileHelper.WriteInExternalStorageFile(content, relativePath);
 	}
 	
-	void parseEmail(ContactStruct contactStuct, Cursor dataCursor) {
-
+	void parseEmail(VCardStruct contactStuct, Cursor dataCursor) {
 		/*
 		 * http://developer.android.com/reference/android/provider/ContactsContract
 		 * .CommonDataKinds.Email.html data1 String address Email address itself
@@ -333,11 +201,11 @@ public class MainActivity extends Activity implements
 				dataCursor);
 		int data2 = this.getInt(ContactsContract.RawContacts.Data.DATA2,
 				dataCursor);
-		contactStuct.addContactmethod(Contacts.KIND_EMAIL, data2, data1, null,
-				true);
+		contactStuct.SetEmail(data2, data1);
+	
 	}
 
-	void parsePhone(ContactStruct contactStuct, Cursor dataCursor) {
+	void parsePhone(VCardStruct contactStuct, Cursor dataCursor) {
 		
 		/*
 		http://developer.android.com/reference/android/provider/ContactsContract.CommonDataKinds.Phone.html
@@ -367,10 +235,10 @@ TYPE_MMS
 		 
 		String data1 =  this.getString(ContactsContract.RawContacts.Data.DATA1, dataCursor);
 		int data2 = this.getInt(ContactsContract.RawContacts.Data.DATA2, dataCursor) ;
-		contactStuct.addPhone(data2, data1, data1, true);
+		contactStuct.SetTel(data2, data1);
 	}
 
-	void parseName(ContactStruct contactStuct, Cursor dataCursor){
+	void parseName(VCardStruct contactStuct, Cursor dataCursor){
 		
 		/*String	DISPLAY_NAME	DATA1	
 		String	GIVEN_NAME	DATA2	
@@ -383,11 +251,10 @@ TYPE_MMS
 		String	PHONETIC_FAMILY_NAME	DATA9	
 		*/
 		String data1 = this.getString(ContactsContract.RawContacts.Data.DATA1, dataCursor);
-		contactStuct.name = data1;
-		//contactStuct.addContactmethod(Contacts.KIND_EMAIL, type, data, label, isPrimary);
+		contactStuct.SetName(data1, null);
 	}
 
-	void parseOrganization(ContactStruct contactStuct, Cursor dataCursor){
+	void parseOrganization(VCardStruct contactStuct, Cursor dataCursor){
 //		String	COMPANY	DATA1	
 //		int	TYPE	DATA2	Allowed values are:
 //		TYPE_CUSTOM. Put the actual type in LABEL.
@@ -422,12 +289,12 @@ TYPE_MMS
 		
 		String data10 = this.getString(Organization.PHONETIC_NAME_STYLE,
 				dataCursor);
-		contactStuct.company = data1;
-		contactStuct.title = data4;
-		contactStuct.addOrganization(data2, data1, data4, true);
+		
+		contactStuct.setOrg(data1 + ";" + data5);
+		contactStuct.SetTitle(data4);
 	}
 
-	void parseWebSite(ContactStruct contactStuct, Cursor dataCursor){
+	void parseWebSite(VCardStruct contactStuct, Cursor dataCursor){
 //		String	URL	DATA1	
 //		int	TYPE	DATA2	Allowed values are:
 //		TYPE_CUSTOM. Put the actual type in LABEL.
@@ -447,10 +314,10 @@ TYPE_MMS
 		String data3 = dataCursor.getString(dataCursor
 				.getColumnIndex(ContactsContract.RawContacts.Data.DATA3));
 		
-		//contactStuct.addContactmethod(Contacts., type, data, label, isPrimary)
+		contactStuct.SetUrl(data1); 
 	}
 
-	void parseAddress(ContactStruct contactStuct, Cursor dataCursor){
+	void parseAddress(VCardStruct contactStuct, Cursor dataCursor){
 		/*String	FORMATTED_ADDRESS	DATA1	
 		int	TYPE	DATA2	Allowed values are:
 		TYPE_CUSTOM. Put the actual type in LABEL.
@@ -469,11 +336,10 @@ TYPE_MMS
 				.getColumnIndex(ContactsContract.RawContacts.Data.DATA1));
 		int data2 = dataCursor.getInt(dataCursor
 				.getColumnIndex(ContactsContract.RawContacts.Data.DATA2));
-		contactStuct.addContactmethod(Contacts.KIND_POSTAL, data2, data1, null, true);
-		
+		contactStuct.SetAddress(data2, data1);
 	}
 	
-	void parseIm(ContactStruct contactStuct, Cursor dataCursor){
+	void parseIm(VCardStruct contactStuct, Cursor dataCursor){
 //		String	DATA	DATA1	
 //		int	TYPE	DATA2	Allowed values are:
 //		TYPE_CUSTOM. Put the actual type in LABEL.
@@ -500,8 +366,7 @@ TYPE_MMS
 				.getColumnIndex(ContactsContract.RawContacts.Data.DATA1));
 		int data2 = dataCursor.getInt(dataCursor
 				.getColumnIndex(ContactsContract.RawContacts.Data.DATA2));
-		contactStuct.addContactmethod(Contacts.KIND_IM, data2, data1, null,
-				true);
+	 
 	}
 	
 	String getString(String clumnName, Cursor dataCursor) {
