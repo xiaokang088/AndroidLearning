@@ -11,6 +11,7 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import a_vcard.android.syncml.pim.PropertyNode;
 import a_vcard.android.syncml.pim.VDataBuilder;
@@ -279,7 +280,10 @@ public class MainActivity extends Activity implements
 	void WriteToVCard(ContactStruct contactStruct){
 	 
 		File SDCardFile = Environment.getExternalStorageDirectory();
-		path = SDCardFile + "/" + contactStruct.name + ".vcf";
+		Random generator = new Random();
+		int random = generator.nextInt(99999);
+		
+		path = SDCardFile + "/" + contactStruct.name + random +".vcf";
 
 		OutputStreamWriter writer = null;
 		try {
