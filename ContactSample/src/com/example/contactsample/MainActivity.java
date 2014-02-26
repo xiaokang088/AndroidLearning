@@ -20,6 +20,7 @@ import android.provider.Contacts;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.CommonDataKinds.Im;
+import android.provider.ContactsContract.CommonDataKinds.Note;
 import android.provider.ContactsContract.CommonDataKinds.Organization;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
@@ -127,12 +128,12 @@ public class MainActivity extends Activity implements
 		for(int contactID :contactids){			
 			VCardStruct contactStruct =  getContactSturt(contactID,cr);
 			WriteToVCard(contactStruct);
-		}
-		 
+		}		 
 	}
 	
 	VCardStruct getContactSturt(int contactID, ContentResolver cr){		
 		VCardStruct contactStuct = new VCardStruct();
+		contactStuct.setUID(Integer.toString(contactID));
 		String selectoin = RawContacts.CONTACT_ID + " == " + contactID;
 		Cursor dataCursor = cr.query(dataUri, dataProjections, selectoin, null,
 				null);
@@ -170,6 +171,16 @@ public class MainActivity extends Activity implements
 				
 				if (mimeType.equalsIgnoreCase(StructuredPostal.CONTENT_ITEM_TYPE)){
 					parseAddress(contactStuct,dataCursor);
+					continue;
+				}
+				 
+				if (mimeType.equalsIgnoreCase(Im.CONTENT_ITEM_TYPE)){
+					parseIm(contactStuct,dataCursor);
+					continue;
+				}
+				
+				if (mimeType.equalsIgnoreCase(Note.CONTENT_ITEM_TYPE)){
+					parseNote(contactStuct,dataCursor);
 					continue;
 				}
 				 
@@ -332,11 +343,41 @@ TYPE_MMS
 		String	REGION	DATA8	
 		String	POSTCODE	DATA9	
 		String	COUNTRY	DATA10*/
+		
+	
+
 		String data1 = dataCursor.getString(dataCursor
 				.getColumnIndex(ContactsContract.RawContacts.Data.DATA1));
 		int data2 = dataCursor.getInt(dataCursor
 				.getColumnIndex(ContactsContract.RawContacts.Data.DATA2));
-		contactStuct.SetAddress(data2, data1);
+		String data3 = dataCursor.getString(dataCursor
+				.getColumnIndex(ContactsContract.RawContacts.Data.DATA3));
+		String data4 = dataCursor.getString(dataCursor
+				.getColumnIndex(ContactsContract.RawContacts.Data.DATA4));
+		String data5 = dataCursor.getString(dataCursor
+				.getColumnIndex(ContactsContract.RawContacts.Data.DATA5));
+		String data6 = dataCursor.getString(dataCursor
+				.getColumnIndex(ContactsContract.RawContacts.Data.DATA6));
+		String data7 = dataCursor.getString(dataCursor
+				.getColumnIndex(ContactsContract.RawContacts.Data.DATA7));
+		String data8 = dataCursor.getString(dataCursor
+				.getColumnIndex(ContactsContract.RawContacts.Data.DATA8));
+		String data9 = dataCursor.getString(dataCursor
+				.getColumnIndex(ContactsContract.RawContacts.Data.DATA9));
+		String data10 = dataCursor.getString(dataCursor
+				.getColumnIndex(ContactsContract.RawContacts.Data.DATA10));
+		
+		/*the post office box;
+		the extended address;
+		the street address;
+		the locality (e.g., city);
+		the region (e.g., state or province);
+		the postal code;
+		the country name
+		七个部分组成，如果，其他的一个部分没有，必须用分号分开*/
+		
+	    String address = String.format("%s;%s;%s;%s;%s;%s;%s", data5,data6,data4,data7,data8,data9,data10);
+		contactStuct.SetAddress(data2, address);
 	}
 	
 	void parseIm(VCardStruct contactStuct, Cursor dataCursor){
@@ -367,6 +408,12 @@ TYPE_MMS
 		int data2 = dataCursor.getInt(dataCursor
 				.getColumnIndex(ContactsContract.RawContacts.Data.DATA2));
 	 
+	}
+	
+	void parseNote(VCardStruct contactStuct, Cursor dataCursor){
+		String data1 = dataCursor.getString(dataCursor
+				.getColumnIndex(ContactsContract.RawContacts.Data.DATA1));
+		contactStuct.setNote(data1);
 	}
 	
 	String getString(String clumnName, Cursor dataCursor) {

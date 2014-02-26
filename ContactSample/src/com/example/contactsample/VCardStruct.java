@@ -1,5 +1,6 @@
 package com.example.contactsample;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,6 +22,9 @@ public class VCardStruct {
 
 	// Title
 	String TitleTag = "TITLE:%s";
+	
+	//UID
+	String UIDTag ="UID:%s";
 
 	// photo
 	String photoUrlTag = "PHOTO;TYPE=JPEG:%s";
@@ -36,8 +40,13 @@ public class VCardStruct {
 	// URL
 	String urlTag = "URL;%s";
 
+	//REV
+	String revTag = "REV:%s";
+	
 	// email
 	String emailTag = "EMAIL;TYPE=%s:%s";
+	
+	String NOTETag = "NOTE:%s";
 
 	final String[] emailTypes = {"HOME","WORK","OTHER","MOBILE","PREF"};
 
@@ -58,8 +67,11 @@ public class VCardStruct {
 	String org;
 	String url;
 	String title;
+	String uid;
 	String photo;
-
+	String note;
+	String rev;
+	
 	public VCardStruct(){
 		telTypeMap.clear();
 		emailTypeMap.clear();
@@ -73,6 +85,10 @@ public class VCardStruct {
 
 	public void SetTitle(String title) {
 		this.title = title;
+	}
+	
+	public void setUID(String uid){
+		this.uid = uid;
 	}
 
 	public void SetTel(int telType, String number) {
@@ -98,6 +114,11 @@ public class VCardStruct {
 		this.org = org;
 	}
 	
+	public void setNote(String note){
+		this.note = note;
+	}
+	
+	
 	public String ToVCardContent(){
 		
 		if (this.name == null) return null;
@@ -110,6 +131,11 @@ public class VCardStruct {
 		builder.append(versionTag);
 		builder.append("\r\n");
 
+		if (this.uid != null) {
+			builder.append(String.format(UIDTag, this.uid));
+			builder.append("\r\n");
+		}
+		
 		if (this.nickName != null) {
 			builder.append(String.format(FNTag, this.nickName));
 			builder.append("\r\n");
@@ -133,6 +159,10 @@ public class VCardStruct {
 			builder.append("\r\n");
 		}
 		
+		if (this.note != null) {
+			builder.append(String.format(this.NOTETag, this.note));
+			builder.append("\r\n");
+		}
 		
 		for (int emailtype : emailTypeMap.keySet()) {
 			String email = emailTypeMap.get(emailtype);
@@ -159,6 +189,10 @@ public class VCardStruct {
 			builder.append("\r\n");
 		}
 		
+		SimpleDateFormat format = new SimpleDateFormat();
+		String dateStr = format.format(System.currentTimeMillis());
+		builder.append(String.format(this.revTag, dateStr));
+		builder.append("\r\n");
 		builder.append(endTag);
 		ret = builder.toString();
 		return ret;
