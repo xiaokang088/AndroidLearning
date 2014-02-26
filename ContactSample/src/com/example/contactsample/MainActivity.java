@@ -101,11 +101,13 @@ public class MainActivity extends Activity implements
 
 		rawContactCursor.moveToFirst();
 		List<Integer> contactids = new ArrayList<Integer>();
-		do {
-			int id = rawContactCursor.getInt(0);
-			String name = rawContactCursor.getString(1);
-			contactids.add(id);
-		} while (rawContactCursor.moveToNext());
+		if (rawContactCursor.getCount() > 0) {
+			do {
+				int id = rawContactCursor.getInt(0);
+				String name = rawContactCursor.getString(1);
+				contactids.add(id);
+			} while (rawContactCursor.moveToNext());
+		}
 		rawContactCursor.close();
 		return contactids;
 	}
@@ -127,8 +129,12 @@ public class MainActivity extends Activity implements
 	
 	void readContacts(){
 		ContentResolver cr = this.getContentResolver();
-		String content = FileHelper
-				.ReadStringFromExternalStorageFile(relativePath);
+	 
+	/*	String content = FileHelper
+				.ReadStringFromExternalStorageFile(relativePath);*/
+		String path = Environment.getDataDirectory() +"/" +relativePath;
+		String content =FileHelper.ReadStringFromFile(path );
+		
 		if (content != null) {
 			
 			String[] arr = content.split("\r\n");
@@ -160,8 +166,7 @@ public class MainActivity extends Activity implements
 			VCardHelper helper = new VCardHelper();
 			List<Integer> contactids = getContactids();
 			for (VCardStruct vCardStruct : vcardStructList) {
-				if (vCardStruct != null
-						&& !contactids.contains(Integer.parseInt(vCardStruct.uid)))
+				if (vCardStruct != null)
 					helper.insertContact(vCardStruct, cr);
 			}
 		 
