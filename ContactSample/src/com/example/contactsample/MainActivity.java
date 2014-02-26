@@ -66,7 +66,7 @@ public class MainActivity extends Activity implements
 		int vID = v.getId();
 
 		if (vID == R.id.btnRead) {
-			read();
+			readContacts();
 		}
 
 		if (vID == R.id.btnWrite) {
@@ -86,8 +86,10 @@ public class MainActivity extends Activity implements
 
 		 
 	}
+	
 
-	void getContacts() {
+	
+	List<Integer> getContactids(){	
 		ContentResolver cr = this.getContentResolver();
 		// content://com.android.contacts/raw_contacts
 		Uri rawUri = RawContacts.CONTENT_URI;
@@ -105,7 +107,13 @@ public class MainActivity extends Activity implements
 			contactids.add(id);
 		} while (rawContactCursor.moveToNext());
 		rawContactCursor.close();
-
+		return contactids;
+	}
+	
+	
+	void getContacts() {
+		ContentResolver cr = this.getContentResolver();
+		List<Integer> contactids = getContactids();
 		List<VCardStruct> VCardStructs = new ArrayList<VCardStruct>();
 		VCardHelper helper = new VCardHelper();
 		for (int contactID : contactids) {
@@ -115,5 +123,49 @@ public class MainActivity extends Activity implements
 		VCardHelper.WriteToVCard(VCardStructs);
 	}
 	
+	static String relativePath = "allContact.vcf";
+	
+	void readContacts(){
+		ContentResolver cr = this.getContentResolver();
+		String content = FileHelper
+				.ReadStringFromExternalStorageFile(relativePath);
+		if (content != null) {
+			
+			String[] arr = content.split("\r\n");
+			
+			List<VCardStruct> vcardStructList = new ArrayList<VCardStruct>();
+			List<String> vcardContent = null;  
+			
+			for (String str : arr) {
+				if (str.startsWith(VCardStruct.startTag)) {
+					vcardContent = new ArrayList<String>();
+					vcardContent.add(str);
+					continue;
+				}
 
+				if (str.startsWith(VCardStruct.endTag)) {
+					if (vcardContent != null) {
+						vcardContent.add(str);						
+						VCardStruct struct = new VCardStruct(vcardContent);
+						vcardStructList.add(struct);
+					}
+					continue;
+				}
+
+				if (vcardContent != null) {
+					vcardContent.add(str);
+				}
+			}
+			
+			VCardHelper helper = new VCardHelper();
+			List<Integer> contactids = getContactids();
+			for (VCardStruct vCardStruct : vcardStructList) {
+				if (vCardStruct != null
+						&& !contactids.contains(Integer.parseInt(vCardStruct.uid)))
+					helper.insertContact(vCardStruct, cr);
+			}
+		 
+		} 
+	   
+	}
 }

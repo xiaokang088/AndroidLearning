@@ -3,9 +3,12 @@ package com.example.contactsample;
 import android.annotation.SuppressLint;
 import android.os.Environment;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 
 public class FileHelper {
@@ -124,14 +127,18 @@ public class FileHelper {
 
 		RandomAccessFile raf;
 		try {
-			raf = new RandomAccessFile(path, "r");
-			StringBuilder buider = new StringBuilder();
-			String line = raf.readLine();
-			while (line != null) {
-				buider.append(line + "\n");
-				line = raf.readLine();
-			}
-			result = buider.toString();
+			InputStream stream = new FileInputStream(path);
+
+			if (stream != null) {
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+				byte[] buf = new byte[120];
+				int ch = -1;
+				while ((ch = stream.read(buf)) != -1) {
+					outputStream.write(buf, 0, ch);
+				}
+				result = new String(outputStream.toByteArray(),"UTF-8");
+				return result;
+			}		 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

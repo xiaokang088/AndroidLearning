@@ -1,11 +1,15 @@
 package com.example.contactsample;
 
+import java.util.HashMap;
 import java.util.List;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.RawContacts;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.CommonDataKinds.Im;
@@ -20,6 +24,7 @@ public class VCardHelper {
 
 	// content://com.android.contacts/data
 	Uri dataUri = ContactsContract.Data.CONTENT_URI;
+	static String relativePath = "allContact.vcf";
 	String[] dataProjections = new String[] {
 			ContactsContract.RawContacts.CONTACT_ID,
 			ContactsContract.RawContacts.Data.MIMETYPE,
@@ -104,6 +109,124 @@ public class VCardHelper {
 		return contactStuct;
 	}
 
+	public void insertContact(VCardStruct vcard, ContentResolver cr){
+		try {
+			ContentValues values = new ContentValues();
+			Uri rawContactUri = cr.insert(RawContacts.CONTENT_URI, values);
+			long rawContactId = ContentUris.parseId(rawContactUri);
+		
+			values.clear();
+			values.put(Data.RAW_CONTACT_ID, rawContactId);
+			values.put(Data.MIMETYPE, StructuredName.CONTENT_ITEM_TYPE);
+			values.put(StructuredName.DISPLAY_NAME, vcard.GetName());
+			cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
+					values);
+
+			//phone
+			HashMap<Integer, String> telTypeMap = vcard.GetTel();
+			if (telTypeMap != null && telTypeMap.size() > 0) {
+				for (int telType : telTypeMap.keySet()) {
+					values.clear();
+					values.put(Data.RAW_CONTACT_ID, rawContactId);
+					values.put(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE);
+					String tel = telTypeMap.get(telType);
+					values.put(Phone.NUMBER, tel);
+					values.put(Phone.TYPE, telType);
+					cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
+							values);
+				}
+			}
+		
+			//Email
+			HashMap<Integer, String> emailTypeMap = vcard.GetEmail();
+			if (emailTypeMap != null && emailTypeMap.size() > 0) {
+				for (int emailtype : emailTypeMap.keySet()) {
+					values.clear();
+					values.put(Data.RAW_CONTACT_ID, rawContactId);
+					values.put(Data.MIMETYPE, Email.CONTENT_ITEM_TYPE);
+					String email = emailTypeMap.get(emailtype);
+					values.put(Email.DATA, email);
+					values.put(Email.TYPE, emailtype);
+					cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
+							values);
+				}
+			
+			}
+			
+			//Address
+			HashMap<Integer, String> addressTypeMap = vcard.GetAddress();
+			if (addressTypeMap != null && addressTypeMap.size() > 0) {
+				for (int adrType : addressTypeMap.keySet()) {
+					values.clear();
+					values.put(Data.RAW_CONTACT_ID, rawContactId);
+					values.put(Data.MIMETYPE, StructuredPostal.CONTENT_ITEM_TYPE);
+					String adr = addressTypeMap.get(adrType);
+					
+					String[] adrArray = adr.split(";");
+					if (adrArray != null && adrArray.length >= 7) {
+						values.put(StructuredPostal.POBOX, adrArray[0]);
+						values.put(StructuredPostal.DATA6, adrArray[1]);
+						values.put(StructuredPostal.DATA4, adrArray[2]);
+						values.put(StructuredPostal.DATA7, adrArray[3]);
+						values.put(StructuredPostal.DATA8, adrArray[4]);
+						values.put(StructuredPostal.DATA9, adrArray[5]);
+						values.put(StructuredPostal.DATA10, adrArray[6]);
+					} else {
+						values.put(StructuredPostal.DATA, adr);
+					}
+
+					values.put(StructuredPostal.TYPE, adrType);
+					cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
+							values);
+				}
+			
+			}
+		 
+			String note =  vcard.GetNote();
+			if(note!=null){
+				values.clear();
+				values.put(Data.RAW_CONTACT_ID, rawContactId);
+				values.put(Data.MIMETYPE, Note.CONTENT_ITEM_TYPE);
+				values.put(Note.NOTE, note);
+				cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
+						values);
+			}
+			
+			String org = vcard.GetOrg();
+			if(org!=null){
+				values.clear();
+				values.put(Data.RAW_CONTACT_ID, rawContactId);
+				values.put(Data.MIMETYPE, Organization.CONTENT_ITEM_TYPE );
+				values.put(Organization.COMPANY, org);
+				cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
+						values);
+			}
+			
+			String title = vcard.GetTitle();
+			if(title!=null){
+				values.clear();
+				values.put(Data.RAW_CONTACT_ID, rawContactId);
+				values.put(Data.MIMETYPE, Organization.CONTENT_ITEM_TYPE );
+				values.put(Organization.TITLE, title);
+				cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
+						values);
+			}
+		
+			String url = vcard.GetUrl();
+			if (url != null) {
+				values.clear();
+				values.put(Data.RAW_CONTACT_ID, rawContactId);
+				values.put(Data.MIMETYPE, Website.CONTENT_ITEM_TYPE);
+				values.put(Website.URL, url);
+				cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
+						values);
+			}
+			
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
 	void parseEmail(VCardStruct contactStuct, Cursor dataCursor) {
 		/*
 		 * http://developer.android.com/reference/android/provider/ContactsContract
@@ -195,7 +318,8 @@ public class VCardHelper {
 	}
 
 	void parseWebSite(VCardStruct contactStuct, Cursor dataCursor) {
-		// String URL DATA1
+		//ContactsContract.CommonDataKinds.Website 
+		//String URL DATA1
 		// int TYPE DATA2 Allowed values are:
 		// TYPE_CUSTOM. Put the actual type in LABEL.
 		// TYPE_HOMEPAGE
@@ -333,7 +457,7 @@ public class VCardHelper {
 
 	public static void WriteToVCard(List<VCardStruct> contactStructs) {
 		StringBuilder builder = new StringBuilder();
-		String relativePath = "allContact.vcf";
+	
 		for (VCardStruct contactStruct : contactStructs) {
 			if (contactStruct == null)
 				continue;

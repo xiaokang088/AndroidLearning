@@ -14,10 +14,11 @@
         android:id="@+id/btnRead"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="e to Vcard" />
+        android:text="restore" />
 
     <Button
         android:id="@+id/btnWrite"
+        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=" from VCard " />
@@ -26,5 +27,5 @@
         android:id="@+id/btnReadAllContact"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Read from phone" />
+        android:text="backup to sdcard" />
 </LinearLayout>
