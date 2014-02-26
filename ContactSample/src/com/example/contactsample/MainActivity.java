@@ -119,16 +119,16 @@ public class MainActivity extends Activity implements
 		do{
 			int id = rawContactCursor.getInt(0);
 			String name = rawContactCursor.getString(1);
-			if (name.equalsIgnoreCase("gg111"))
-				continue;
 			contactids.add(id);
 		} while(rawContactCursor.moveToNext());
 		rawContactCursor.close();
 		
+		List<VCardStruct> VCardStructs = new ArrayList<VCardStruct>();
 		for(int contactID :contactids){			
 			VCardStruct contactStruct =  getContactSturt(contactID,cr);
-			WriteToVCard(contactStruct);
+			VCardStructs.add(contactStruct);
 		}		 
+		VCardHelper.WriteToVCard(VCardStructs);
 	}
 	
 	VCardStruct getContactSturt(int contactID, ContentResolver cr){		
@@ -193,12 +193,6 @@ public class MainActivity extends Activity implements
 		}
 		dataCursor.close();
 		return contactStuct;
-	}
-	
-	void WriteToVCard(VCardStruct contactStruct){	
-		String relativePath = contactStruct.name   + ".vcf";
-		String content = contactStruct.ToVCardContent();
-		FileHelper.WriteInExternalStorageFile(content, relativePath);
 	}
 	
 	void parseEmail(VCardStruct contactStuct, Cursor dataCursor) {
@@ -366,7 +360,13 @@ TYPE_MMS
 				.getColumnIndex(ContactsContract.RawContacts.Data.DATA9));
 		String data10 = dataCursor.getString(dataCursor
 				.getColumnIndex(ContactsContract.RawContacts.Data.DATA10));
-		
+		data4 = checkNull(data4);
+		data5 = checkNull(data5);
+		data6 =checkNull(data6);
+		data7 =checkNull(data7);
+		data8 =checkNull(data8);
+		data9 =checkNull(data9);
+		data10 =checkNull(data10);	
 		/*the post office box;
 		the extended address;
 		the street address;
@@ -376,10 +376,14 @@ TYPE_MMS
 		the country name
 		七个部分组成，如果，其他的一个部分没有，必须用分号分开*/
 		
-	    String address = String.format("%s;%s;%s;%s;%s;%s;%s", data5,data6,data4,data7,data8,data9,data10);
+	    String address = String.format("%s;%s;%s;%s;%s;%s;%s", data5,data6,data4,data7,data8,data9,data10);    
 		contactStuct.SetAddress(data2, address);
 	}
 	
+	String checkNull(String data) {
+		return  data == null ? "" : data;
+	}
+
 	void parseIm(VCardStruct contactStuct, Cursor dataCursor){
 //		String	DATA	DATA1	
 //		int	TYPE	DATA2	Allowed values are:

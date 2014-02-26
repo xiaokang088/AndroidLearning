@@ -22,9 +22,9 @@ public class VCardStruct {
 
 	// Title
 	String TitleTag = "TITLE:%s";
-	
-	//UID
-	String UIDTag ="UID:%s";
+
+	// UID
+	String UIDTag = "UID:%s";
 
 	// photo
 	String photoUrlTag = "PHOTO;TYPE=JPEG:%s";
@@ -40,28 +40,27 @@ public class VCardStruct {
 	// URL
 	String urlTag = "URL;%s";
 
-	//REV
+	// REV
 	String revTag = "REV:%s";
-	
+
 	// email
 	String emailTag = "EMAIL;TYPE=%s:%s";
-	
+
 	String NOTETag = "NOTE:%s";
 
-	final String[] emailTypes = {"HOME","WORK","OTHER","MOBILE","PREF"};
+	final String[] emailTypes = { "HOME", "WORK", "OTHER", "MOBILE", "PREF" };
 
 	final String[] telTypes = { "HOME", "CELL", "WORK", "FAX,WORK", "FAX,HOME",
 			"PAGER", "OTHER", "CALLBACK", "CAR", "COMPANY,Main", "ISDN",
 			"MAIN", "OTHER,FAX", "RADIO", "TELEX", "TTY,TDD", "WORK,MOBILE" };
-	
-	final String[] addressTypes = {"HOME","WORK","OTHER","PREF"};
- 
 
-	private static final HashMap<Integer, String> telTypeMap = new HashMap<Integer, String>();
+	final String[] addressTypes = { "HOME", "WORK", "OTHER", "PREF" };
 
-	private static final HashMap<Integer, String> emailTypeMap = new HashMap<Integer, String>();
-	
-	private static final HashMap<Integer, String> addressTypeMap = new HashMap<Integer, String>();
+	HashMap<Integer, String> telTypeMap = new HashMap<Integer, String>();
+
+	HashMap<Integer, String> emailTypeMap = new HashMap<Integer, String>();
+
+	HashMap<Integer, String> addressTypeMap = new HashMap<Integer, String>();
 
 	String name, nickName;
 	String org;
@@ -71,13 +70,13 @@ public class VCardStruct {
 	String photo;
 	String note;
 	String rev;
-	
-	public VCardStruct(){
+
+	public VCardStruct() {
 		telTypeMap.clear();
 		emailTypeMap.clear();
 		addressTypeMap.clear();
 	}
-	
+
 	public void SetName(String name, String nickName) {
 		this.name = name;
 		this.nickName = nickName;
@@ -86,45 +85,48 @@ public class VCardStruct {
 	public void SetTitle(String title) {
 		this.title = title;
 	}
-	
-	public void setUID(String uid){
+
+	public void setUID(String uid) {
 		this.uid = uid;
 	}
 
 	public void SetTel(int telType, String number) {
-		if (telType == 0) telType=2;
+		if (telType == 0)
+			telType = 2;
 		telTypeMap.put(telType, number);
 	}
 
 	public void SetEmail(int emailType, String number) {
-		if (emailType == 0) emailType=5;
+		if (emailType == 0)
+			emailType = 5;
 		emailTypeMap.put(emailType, number);
 	}
-	
-	public void SetAddress(int addressType, String address){
-		if (addressType == 0) addressType=4;
+
+	public void SetAddress(int addressType, String address) {
+		if (addressType == 0)
+			addressType = 4;
 		addressTypeMap.put(addressType, address);
 	}
-	
-	public void SetUrl(String url){
+
+	public void SetUrl(String url) {
 		this.url = url;
 	}
-	
-	public void setOrg(String org){
+
+	public void setOrg(String org) {
 		this.org = org;
 	}
-	
-	public void setNote(String note){
+
+	public void setNote(String note) {
 		this.note = note;
 	}
-	
-	
-	public String ToVCardContent(){
-		
-		if (this.name == null) return null;
-		
+
+	public String ToVCardContent() {
+
+		if (this.name == null)
+			return null;
+
 		String ret = null;
-		
+
 		StringBuilder builder = new StringBuilder();
 		builder.append(startTag);
 		builder.append("\r\n");
@@ -135,7 +137,7 @@ public class VCardStruct {
 			builder.append(String.format(UIDTag, this.uid));
 			builder.append("\r\n");
 		}
-		
+
 		if (this.nickName != null) {
 			builder.append(String.format(FNTag, this.nickName));
 			builder.append("\r\n");
@@ -158,12 +160,12 @@ public class VCardStruct {
 			builder.append(String.format(this.urlTag, this.url));
 			builder.append("\r\n");
 		}
-		
+
 		if (this.note != null) {
 			builder.append(String.format(this.NOTETag, this.note));
 			builder.append("\r\n");
 		}
-		
+
 		for (int emailtype : emailTypeMap.keySet()) {
 			String email = emailTypeMap.get(emailtype);
 			String emailContent = String.format(this.emailTag,
@@ -171,8 +173,7 @@ public class VCardStruct {
 			builder.append(emailContent);
 			builder.append("\r\n");
 		}
-		
-		
+
 		for (int telType : telTypeMap.keySet()) {
 			String tel = telTypeMap.get(telType);
 			String telContent = String.format(this.telTag,
@@ -180,7 +181,7 @@ public class VCardStruct {
 			builder.append(telContent);
 			builder.append("\r\n");
 		}
-		
+
 		for (int adrType : addressTypeMap.keySet()) {
 			String adr = addressTypeMap.get(adrType);
 			String adrContent = String.format(this.AdrTag,
@@ -188,9 +189,9 @@ public class VCardStruct {
 			builder.append(adrContent);
 			builder.append("\r\n");
 		}
-		
-		SimpleDateFormat format = new SimpleDateFormat();
-		String dateStr = format.format(System.currentTimeMillis());
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd hhmmss");
+		String dateStr = dateFormat.format(System.currentTimeMillis());
 		builder.append(String.format(this.revTag, dateStr));
 		builder.append("\r\n");
 		builder.append(endTag);
