@@ -1,13 +1,16 @@
 package com.example.contactsample;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.RawContacts;
@@ -24,7 +27,7 @@ public class VCardHelper {
 
 	// content://com.android.contacts/data
 	Uri dataUri = ContactsContract.Data.CONTENT_URI;
-	static String relativePath = "allContact.vcf";
+	static String _defaultPath = "allContact.vcf";
 	String[] dataProjections = new String[] {
 			ContactsContract.RawContacts.CONTACT_ID,
 			ContactsContract.RawContacts.Data.MIMETYPE,
@@ -43,7 +46,12 @@ public class VCardHelper {
 			ContactsContract.RawContacts.Data.DATA13,
 			ContactsContract.RawContacts.Data.DATA14,
 			ContactsContract.RawContacts.Data.DATA15, };
-
+	Context _context;
+	
+	public VCardHelper(Context context) {
+		_context = context;
+	}
+		
 	public  VCardStruct getContactSturt(int contactID, ContentResolver cr) {
 		VCardStruct contactStuct = new VCardStruct();
 		contactStuct.setUID(Integer.toString(contactID));
@@ -109,8 +117,9 @@ public class VCardHelper {
 		return contactStuct;
 	}
 
-	public void insertContact(VCardStruct vcard, ContentResolver cr){
+	public void insertContact(VCardStruct vcard){
 		try {
+			ContentResolver cr = _context.getContentResolver();
 			ContentValues values = new ContentValues();
 			Uri rawContactUri = cr.insert(RawContacts.CONTENT_URI, values);
 			long rawContactId = ContentUris.parseId(rawContactUri);
@@ -225,6 +234,70 @@ public class VCardHelper {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+	}
+	
+	public static void WriteToVCard(VCardStruct contactStruct) {
+		String relativePath = contactStruct.name + ".vcf";
+		String content = contactStruct.ToVCardContent();
+		FileHelper.WriteInExternalStorageFile(content, relativePath);
+	}
+
+	public static void WriteToVCard(List<VCardStruct> contactStructs, String path) {
+	
+		StringBuilder builder = new StringBuilder();
+	
+		if(path == null){
+			path = FileHelper.GetRelativePathInExternalStorage(_defaultPath);
+		}
+		
+		for (VCardStruct contactStruct : contactStructs) {
+			if (contactStruct == null)
+				continue;
+			String content = contactStruct.ToVCardContent();
+			if (content != null)
+				builder.append(content + "\r\n\r\n");
+		}
+		
+		FileHelper.Write(builder.toString(), path);
+	}
+	
+	public static List<VCardStruct> ReadFromVCard(String path) {
+		List<VCardStruct> vcardStructList = null;
+		if (path == null) {
+			path = FileHelper.GetRelativePathInExternalStorage(_defaultPath);
+		}
+
+		String content = FileHelper.ReadStringFromFile(path);
+
+		if (content != null) {
+
+			String[] arr = content.split("\r\n");
+
+			vcardStructList = new ArrayList<VCardStruct>();
+			List<String> vcardContent = null;
+
+			for (String str : arr) {
+				if (str.startsWith(VCardStruct.startTag)) {
+					vcardContent = new ArrayList<String>();
+					vcardContent.add(str);
+					continue;
+				}
+
+				if (str.startsWith(VCardStruct.endTag)) {
+					if (vcardContent != null) {
+						vcardContent.add(str);
+						VCardStruct struct = new VCardStruct(vcardContent);
+						vcardStructList.add(struct);
+					}
+					continue;
+				}
+
+				if (vcardContent != null) {
+					vcardContent.add(str);
+				}
+			}
+		}
+		return vcardStructList;
 	}
 	
 	void parseEmail(VCardStruct contactStuct, Cursor dataCursor) {
@@ -447,25 +520,6 @@ public class VCardHelper {
 			ex.printStackTrace();
 		}
 		return ret;
-	}
-
-	public static void WriteToVCard(VCardStruct contactStruct) {
-		String relativePath = contactStruct.name + ".vcf";
-		String content = contactStruct.ToVCardContent();
-		FileHelper.WriteInExternalStorageFile(content, relativePath);
-	}
-
-	public static void WriteToVCard(List<VCardStruct> contactStructs) {
-		StringBuilder builder = new StringBuilder();
-	
-		for (VCardStruct contactStruct : contactStructs) {
-			if (contactStruct == null)
-				continue;
-			String content = contactStruct.ToVCardContent();
-			if (content != null)
-				builder.append(content + "\r\n\r\n");
-		}
-		FileHelper.WriteInExternalStorageFile(builder.toString(), relativePath);
 	}
 
 }

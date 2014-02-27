@@ -38,14 +38,18 @@ public class MainActivity extends Activity implements
 		android.view.View.OnClickListener {
 
 	String path;
-
+	ContactHelper _contactHelper;
+	VCardHelper _vCardHelper ;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		setOnClickListener(R.id.btnRead);
 		setOnClickListener(R.id.btnWrite);
-		setOnClickListener(R.id.btnReadAllContact);		
+		setOnClickListener(R.id.btnReadAllContact);	
+		_contactHelper = new ContactHelper(this);
+		_vCardHelper = new VCardHelper(this);
 	}
 
 	@Override
@@ -87,42 +91,16 @@ public class MainActivity extends Activity implements
 		 
 	}
 	
-
-	
-	List<Integer> getContactids(){	
-		ContentResolver cr = this.getContentResolver();
-		// content://com.android.contacts/raw_contacts
-		Uri rawUri = RawContacts.CONTENT_URI;
-		String[] projections = new String[] {
-				ContactsContract.RawContacts.CONTACT_ID,
-				ContactsContract.Data.DISPLAY_NAME };
-		Cursor rawContactCursor = cr.query(rawUri, projections, null, null,
-				null);
-
-		rawContactCursor.moveToFirst();
-		List<Integer> contactids = new ArrayList<Integer>();
-		if (rawContactCursor.getCount() > 0) {
-			do {
-				int id = rawContactCursor.getInt(0);
-				String name = rawContactCursor.getString(1);
-				contactids.add(id);
-			} while (rawContactCursor.moveToNext());
-		}
-		rawContactCursor.close();
-		return contactids;
-	}
-	
 	
 	void getContacts() {
 		ContentResolver cr = this.getContentResolver();
-		List<Integer> contactids = getContactids();
+		List<Integer> contactids = _contactHelper.GetContactids();
 		List<VCardStruct> VCardStructs = new ArrayList<VCardStruct>();
-		VCardHelper helper = new VCardHelper();
 		for (int contactID : contactids) {
-			VCardStruct contactStruct = helper.getContactSturt(contactID, cr);
+			VCardStruct contactStruct = _vCardHelper.getContactSturt(contactID, cr);
 			VCardStructs.add(contactStruct);
 		}
-		VCardHelper.WriteToVCard(VCardStructs);
+		VCardHelper.WriteToVCard(VCardStructs,null);
 	}
 	
 	static String relativePath = "allContact.vcf";
@@ -163,11 +141,9 @@ public class MainActivity extends Activity implements
 				}
 			}
 			
-			VCardHelper helper = new VCardHelper();
-			List<Integer> contactids = getContactids();
 			for (VCardStruct vCardStruct : vcardStructList) {
 				if (vCardStruct != null)
-					helper.insertContact(vCardStruct, cr);
+					_vCardHelper.insertContact(vCardStruct);
 			}
 		 
 		} 
