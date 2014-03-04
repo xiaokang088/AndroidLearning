@@ -235,12 +235,11 @@ public class MainActivity extends Activity implements
 				}
 
 				final String content = helper.GetWeather(currentCityName);
-
-				imgView.setImageResource(R.drawable.w3);
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
 						tvShow.setText(content);
+						//imgView.setImageResource(R.drawable.w3);
 						myTTS.speak(content, TextToSpeech.QUEUE_FLUSH, null);
 					}
 				});

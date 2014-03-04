@@ -54,7 +54,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="After input city name,  click [go] to query! " />
+                android:text="After input city name,  click [go] to query! "
+                android:textSize="20dp" />
+
         </LinearLayout>
     </ScrollView>
 

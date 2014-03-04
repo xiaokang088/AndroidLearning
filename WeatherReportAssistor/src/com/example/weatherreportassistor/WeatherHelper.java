@@ -174,16 +174,16 @@ public class WeatherHelper {
 		String cityDescrption = parms[22];
 
 		StringBuilder builder = new StringBuilder();
-		builder.append("城市：%s\r\n :%s\r\n  :%s\r\n  :%s\r\n 当前 :%s\r\n ");
-		builder.append("\r\n ");
-		builder.append("明天:%s\r\n  :%s\r\n  : %s\r\n ");
-		builder.append("\r\n  ");
-		builder.append("后天:%s\r\n  :%s\r\n  : %s\r\n ");
-		builder.append("\r\n ");
-		String content = String.format(builder.toString(), city, temperature,
-				summary, wind, realtimeSummary, secondTemperature,
-				secondSummary, secondWind, thirdTemperature, thirdSummary,
-				thirdWind);
+		builder.append("%s\r\n%s %s %s\r\n%s\r\n");
+		builder.append("\r\n");
+		builder.append("%s %s %s");
+		builder.append("\r\n");
+		builder.append("%s %s %s");
+		builder.append("\r\n");
+		String content = String.format(builder.toString(), 
+				city,summary,temperature, wind, realtimeSummary, 
+				secondSummary,secondTemperature, secondWind, 
+				thirdSummary,thirdTemperature ,thirdWind);
 
 		return content;
 	}
