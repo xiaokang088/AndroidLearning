@@ -46,7 +46,7 @@ public class MainActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		setOnClickListener(R.id.btnRead);
-		setOnClickListener(R.id.btnWrite);
+		setOnClickListener(R.id.btnTest);
 		setOnClickListener(R.id.btnReadAllContact);	
 		_contactHelper = new ContactHelper(this);
 		_vCardHelper = new VCardHelper(this);
@@ -73,8 +73,8 @@ public class MainActivity extends Activity implements
 			readContacts();
 		}
 
-		if (vID == R.id.btnWrite) {
-			write();
+		if (vID == R.id.btnTest) {
+			getContactSync();
 		}
 		
 		if (vID == R.id.btnReadAllContact) {
@@ -91,6 +91,36 @@ public class MainActivity extends Activity implements
 		 
 	}
 	
+	
+	void getContactSync(){
+		ContentResolver cr = this.getContentResolver();
+		 
+		Uri rawUri = RawContacts.CONTENT_URI;
+		String[] projections = new String[] {
+				ContactsContract.RawContacts.CONTACT_ID,
+				ContactsContract.Data.DISPLAY_NAME,
+				ContactsContract.RawContacts.SYNC1,
+				ContactsContract.RawContacts.SYNC2,
+				ContactsContract.RawContacts.SYNC3,
+				ContactsContract.RawContacts.SYNC4,};
+		Cursor rawContactCursor = cr.query(rawUri, projections, null, null,
+				null);
+
+		rawContactCursor.moveToFirst();
+		List<Integer> contactids = new ArrayList<Integer>();
+		if (rawContactCursor.getCount() > 0) {
+			do {
+				int id = rawContactCursor.getInt(0);
+				String name = rawContactCursor.getString(1);
+				String sync1 = rawContactCursor.getString(2);
+				String sync2 = rawContactCursor.getString(3);
+				String sync3 = rawContactCursor.getString(4);
+				String sync4 = rawContactCursor.getString(5);
+				contactids.add(id);
+			} while (rawContactCursor.moveToNext());
+		}
+		rawContactCursor.close();
+	}
 	
 	void getContacts() {
 		ContentResolver cr = this.getContentResolver();

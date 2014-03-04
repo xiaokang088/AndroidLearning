@@ -16,16 +16,15 @@
         android:layout_height="wrap_content"
         android:text="restore" />
 
-    <Button
-        android:id="@+id/btnWrite"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=" from VCard " />
-
         <Button
         android:id="@+id/btnReadAllContact"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="backup to sdcard" />
+        
+            <Button
+        android:id="@+id/btnTest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=" test  " />
 </LinearLayout>

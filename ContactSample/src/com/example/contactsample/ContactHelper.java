@@ -25,7 +25,7 @@ public class ContactHelper {
 		Uri rawUri = RawContacts.CONTENT_URI;
 		String[] projections = new String[] {
 				ContactsContract.RawContacts.CONTACT_ID,
-				ContactsContract.Data.DISPLAY_NAME };
+				ContactsContract.Data.DISPLAY_NAME};
 		Cursor rawContactCursor = cr.query(rawUri, projections, null, null,
 				null);
 
