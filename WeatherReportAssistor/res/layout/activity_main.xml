@@ -12,6 +12,7 @@
 
     <LinearLayout
         android:id="@+id/layoutRequest"
+        android:background="#ccc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >

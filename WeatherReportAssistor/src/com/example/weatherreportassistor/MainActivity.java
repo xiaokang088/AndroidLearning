@@ -52,6 +52,7 @@ public class MainActivity extends Activity implements
 	String currentCityName = "";
 	TextView tvShow;
 	ImageView imgView;
+	WeatherApplication application;
 	
 	WeatherHelper helper = new WeatherHelper(this);
 	public int MY_DATA_CHECK_CODE = 0;
@@ -72,6 +73,8 @@ public class MainActivity extends Activity implements
 		Intent checkTTSIntent = new Intent();
 		checkTTSIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
 		startActivityForResult(checkTTSIntent, MY_DATA_CHECK_CODE);
+		
+		application = WeatherApplication.getInstance();
 	}
 
 	protected void onNewIntent(Intent intent) {
@@ -94,6 +97,8 @@ public class MainActivity extends Activity implements
  
 		currentCityName = et.getText().toString();
 
+		this.getApplication();
+		
 		getWeather();
 	}
 
@@ -231,7 +236,8 @@ public class MainActivity extends Activity implements
 				currentCityName = et.getText().toString();
 
 				if (currentCityName == null || currentCityName.length() <= 0) {
-					currentCityName = defaultCityName;
+					//currentCityName = defaultCityName;
+					currentCityName = application.getCurrentCity();
 				}
 
 				final String content = helper.GetWeather(currentCityName);

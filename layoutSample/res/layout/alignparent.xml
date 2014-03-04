@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="15dp"
+        android:background="#cccccc" >
+
+        <TextView
+            android:id="@+id/tvCenter"
+            style="@style/forTextView"
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:background="#0000ff"
+            android:text="left-top"
+            android:textColor="#ffffff" />
+
+        <TextView
+            android:id="@+id/tvCenter"
+            style="@style/forTextView"
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:background="#0000ff"
+            android:text="right-top"
+            android:textColor="#ffffff" />
+
+        <TextView
+            android:id="@+id/tvCenter"
+            style="@style/forTextView"
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:layout_alignParentBottom="true"
+            android:background="#0000ff"
+            android:text="left-bottom"
+            android:textColor="#ffffff" />
+
+        <TextView
+            android:id="@+id/tvCenter"
+            style="@style/forTextView"
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:background="#0000ff"
+            android:text="left-bottom"
+            android:textColor="#ffffff" />
+
+        <TextView
+            android:id="@+id/tvCenter"
+            style="@style/forTextView"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_centerInParent="true"
+            android:background="#0000ff"
+            android:padding="3dp"
+            android:text="layout_centerInParent"
+            android:textColor="#ffffff" />
+
+        <TextView
+            android:id="@+id/tvCenter"
+            style="@style/forTextView"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_centerHorizontal="true"
+            android:background="#0000ff"
+            android:padding="3dp"
+            android:text="layout_centerHorizontal"
+            android:textColor="#ffffff" />
+
+        <TextView
+            android:id="@+id/tvCenter"
+            style="@style/forTextView"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_centerVertical="true"
+            android:background="#0000ff"
+            android:text="layout_centerVertical"
+            android:textColor="#ffffff" />
+    </RelativeLayout>
+
+</RelativeLayout>
