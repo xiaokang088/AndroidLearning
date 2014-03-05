@@ -11,15 +11,16 @@ import android.widget.TextView;
 public class MainActivity extends Activity implements
 		android.view.View.OnClickListener {
 
-	
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		Button btn = (Button) this.findViewById(R.id.btnTest);
+		Button btn = (Button) this.findViewById(R.id.btnTestCreateUIByCode);
 		btn.setOnClickListener(this);
-	
+		btn = (Button) this.findViewById(R.id.btnTestGravity);
+		btn.setOnClickListener(this);
+		btn = (Button) this.findViewById(R.id.btnRightToLeft);
+		btn.setOnClickListener(this);
 	}
 
 	@Override
@@ -32,9 +33,25 @@ public class MainActivity extends Activity implements
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
-		Intent intent = new Intent(this, GravityTestActivity.class);
-		this.startActivity(intent);
+		/*
+		 * Intent intent = new Intent(this, GravityTestActivity.class);
+		 * this.startActivity(intent);
+		 */
 
+		if (v.getId() == R.id.btnTestCreateUIByCode) {
+			Intent newIntent = new Intent(this, CreateUIByCode.class);
+			this.startActivity(newIntent);
+		}
+
+		if (v.getId() == R.id.btnTestGravity) {
+			Intent newIntent = new Intent(this, GravityTestActivity.class);
+			this.startActivity(newIntent);
+		}
+
+		if (v.getId() == R.id.btnRightToLeft) {
+			Intent newIntent = new Intent(this, layoutDirection.class);
+			this.startActivity(newIntent);
+		}
 	}
 
 }

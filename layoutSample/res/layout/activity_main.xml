@@ -1,58 +1,52 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/LinearLayout1"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#ffbbff"
-        android:gravity="fill" >
+        >
 
         <Button
-            android:id="@+id/btnGo"
+            android:id="@+id/btnGo11"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_alignParentRight="true"
-            android:layout_marginLeft="10dp"
+            android:layout_alignParentTop="true"
             android:text="go" />
 
         <EditText
             android:id="@+id/etWords"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_gravity="bottom"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="10dp"
-            android:maxWidth="400dp"
-            android:layout_toLeftOf="@id/btnGo"
-            android:gravity="center"
+            android:layout_toLeftOf="@id/btnGo11"
             android:hint="Please input words to search"
             android:singleLine="true" />
-        
-        <TextView android:layout_width="400dp" 
-            android:layout_height="30dp"
-            android:background="#00ffcc" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
     </RelativeLayout>
 
     <Button
-        android:id="@+id/btnTest"
+        android:id="@+id/btnTestGravity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="test" />
+        android:text="test Gravity" />
 
+      <Button
+        android:id="@+id/btnTestCreateUIByCode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CreateUIByCode" />
+    
+        <Button
+        android:id="@+id/btnRightToLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="RightToLeft" />
 </LinearLayout>
