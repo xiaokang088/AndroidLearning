@@ -16,10 +16,7 @@ public class PlanAdapter extends ArrayAdapter<PlanItem> {
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override
-	public int getCount(){
-		return this.getCount();
-	}
+ 
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
