@@ -70,9 +70,9 @@ public class MainActivity extends Activity implements
 		imgView = (ImageView)this.findViewById(R.id.imgView);
 		
 		// check for TTS data
-		Intent checkTTSIntent = new Intent();
+	/*	Intent checkTTSIntent = new Intent();
 		checkTTSIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
-		startActivityForResult(checkTTSIntent, MY_DATA_CHECK_CODE);
+		startActivityForResult(checkTTSIntent, MY_DATA_CHECK_CODE);*/
 		
 		application = WeatherApplication.getInstance();
 	}
@@ -246,7 +246,7 @@ public class MainActivity extends Activity implements
 					public void run() {
 						tvShow.setText(content);
 						//imgView.setImageResource(R.drawable.w3);
-						myTTS.speak(content, TextToSpeech.QUEUE_FLUSH, null);
+						//myTTS.speak(content, TextToSpeech.QUEUE_FLUSH, null);
 					}
 				});
 				isRunning = false;

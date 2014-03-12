@@ -8,8 +8,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >
+        android:layout_height="wrap_content" >
 
         <Button
             android:id="@+id/btnGo11"
@@ -38,15 +37,35 @@
         android:layout_height="wrap_content"
         android:text="test Gravity" />
 
-      <Button
+    <Button
         android:id="@+id/btnTestCreateUIByCode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="CreateUIByCode" />
-    
-        <Button
+
+    <Button
         android:id="@+id/btnRightToLeft"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="RightToLeft" />
+
+    <Button
+        android:id="@+id/btnLinearLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="test Linearlayout" />
+
+     <Button
+        android:id="@+id/btnListviewTest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="test ListView" />
+    
+     
+     <Button
+        android:id="@+id/btnGridviewTest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="test GridView" />
+     
 </LinearLayout>

@@ -22,6 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
+            android:text="杭州"
             android:hint="Please input city name" >
 
             <requestFocus />
@@ -31,7 +32,7 @@
             android:id="@+id/btnGet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Go" />
+            android:text="查询" />
     </LinearLayout>
 
     <ScrollView

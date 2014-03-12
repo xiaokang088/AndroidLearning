@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+   <!--  horizontalSpacing 行间距
+    verticalSpacing 列间距
+    stretchMode 
+    
+    Defines how columns should stretch to fill the available empty space, if any.
+
+Must be one of the following constant values.
+
+Constant		Value		Description
+none			0	 		Stretching is disabled.
+spacingWidth	1	 		The spacing between each column is stretched.
+columnWidth		2	 		Each column is stretched equally.
+spacingWidthUniform	3	 	The spacing between each column is uniformly stretched..
+This corresponds to the global attribute resource symbol stretchMode. -->
+
+    <GridView
+        android:id="@+id/gridview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:columnWidth="90dp"
+        android:gravity="center"
+        android:horizontalSpacing="10dp"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth"    
+        android:verticalSpacing="10dp" />
+
+</LinearLayout>

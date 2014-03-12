@@ -21,6 +21,10 @@ public class MainActivity extends Activity implements
 		btn.setOnClickListener(this);
 		btn = (Button) this.findViewById(R.id.btnRightToLeft);
 		btn.setOnClickListener(this);
+		btn = (Button) this.findViewById(R.id.btnListviewTest);
+		btn.setOnClickListener(this);
+		btn = (Button) this.findViewById(R.id.btnGridviewTest);
+		btn.setOnClickListener(this);
 	}
 
 	@Override
@@ -50,6 +54,21 @@ public class MainActivity extends Activity implements
 
 		if (v.getId() == R.id.btnRightToLeft) {
 			Intent newIntent = new Intent(this, layoutDirection.class);
+			this.startActivity(newIntent);
+		}
+		
+		if (v.getId() == R.id.btnLinearLayout) {
+			Intent newIntent = new Intent(this, linearlayoutsample.class);
+			this.startActivity(newIntent);
+		}
+		
+		if (v.getId() == R.id.btnListviewTest) {
+			Intent newIntent = new Intent(this, ListViewLoader.class);
+			this.startActivity(newIntent);
+		}
+		
+		if (v.getId() == R.id.btnGridviewTest) {
+			Intent newIntent = new Intent(this, HelloGridView.class);
 			this.startActivity(newIntent);
 		}
 	}
