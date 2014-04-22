@@ -1,11 +1,16 @@
-package com.example.inputcontrolssample;
+package com.example.log4jsample;
 
+import java.io.File;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
+import de.mindpipe.android.logging.log4j.LogConfigurator;
 import android.os.Bundle;
+import android.os.Environment;
 import android.app.Activity;
-import android.content.Intent;
 import android.view.Menu;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 
 public class MainActivity extends Activity implements android.view.View.OnClickListener{
@@ -13,12 +18,9 @@ public class MainActivity extends Activity implements android.view.View.OnClickL
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_main);
-		Button btn =  (Button)this.findViewById(R.id.button1);
-		btn.setOnClickListener(this);
-		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
-				R.layout.custom_title_1);
+		Button btnWrite = (Button)this.findViewById(R.id.btnWrite);
+		btnWrite.setOnClickListener(this);
 	}
 
 	@Override
@@ -31,8 +33,14 @@ public class MainActivity extends Activity implements android.view.View.OnClickL
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
-		Intent intent = new Intent(this,tabtest.class);
-		this.startActivity(intent);
+		if (v.getId() == R.id.btnWrite){
+			 Logger log = Logger.getLogger(MyApplication.class);
+		        log.info("My Application Created");
+		        
+		      
+		}
 	}
 
+	
+	
 }

@@ -254,10 +254,10 @@ public class MainActivity extends Activity implements
 
 			} catch (UserRecoverableAuthIOException e) {
 				e.printStackTrace();
-				Log.d(TAG, "Fail" + e.getCause());
+				Log.d(TAG, "Fail" + e.toString());
 				startActivityForResult(e.getIntent(), REQUEST_AUTHORIZATION);
 			} catch (Exception ex) {
-				Log.d(TAG, "Fail" + ex.getCause());
+				Log.d(TAG, "Fail" + ex.toString());
 				ex.printStackTrace();
 			}
 		} else {
