@@ -8,13 +8,14 @@ import android.view.Menu;
 public class MainActivity extends Activity implements Shaker.Callback{
 
 	public  final String TAG = "MainActivity";
+	Shaker shaker ;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		Shaker shaker = new Shaker(getBaseContext(), 2.0d, 0, this);
+		  shaker = new Shaker(getBaseContext(), 2.0d, 0, this);
 	}
 
 	@Override
@@ -24,6 +25,11 @@ public class MainActivity extends Activity implements Shaker.Callback{
 		return true;
 	}
 
+	@Override
+	protected void onPause(){
+		shaker.close();
+	}
+	
 	@Override
 	public void shakingStarted() {
 		Log.i(TAG, "shakingStarted");

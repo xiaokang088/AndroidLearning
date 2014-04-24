@@ -8,6 +8,11 @@ import android.hardware.SensorManager;
 import android.os.SystemClock;
 import android.util.Log;
 
+//http://stackoverflow.com/questions/9934324/implementing-a-shake-event
+//http://developer.android.com/reference/android/hardware/SensorEvent.html
+//http://rainbow702.iteye.com/blog/1132865
+//http://blog.csdn.net/fz_pro/article/details/7588054
+	
 public class Shaker {
 	private SensorManager sensorManager = null;
 	private long lastShakeTimestamp = 0;
@@ -34,7 +39,6 @@ public class Shaker {
 	}
 
 	private void isShaking() {
-		Log.i(TAG, "isShaking");
 		long now = SystemClock.uptimeMillis();
 		try {
 			if (lastShakeTimestamp == 0) {
@@ -52,7 +56,6 @@ public class Shaker {
 	}
 
 	private void isNotShaking() {
-		Log.i(TAG, "isNotShaking");
 		long now = SystemClock.uptimeMillis();
 
 		if (lastShakeTimestamp > 0) {
@@ -76,10 +79,7 @@ public class Shaker {
 		@Override
 		public void onSensorChanged(SensorEvent e) {
 			if (e.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-				
-				Log.i(TAG, "0:" + e.values[0] + "	1:"
-						+ e.values[1] + "		2:" + e.values[2]);
-				
+			 
 				double netForce = e.values[0] * e.values[0];
 				netForce += e.values[1] * e.values[1];
 				netForce += e.values[2] * e.values[2];
