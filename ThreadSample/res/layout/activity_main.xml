@@ -10,42 +10,53 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
-      <Button
+    <Button
         android:id="@+id/btnAsyncTask"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="async Task" />
-      
-      
-      <Button
+
+    <Button
         android:id="@+id/btnThread"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="thread Task" />
-      
-          <Button
+
+    <Button
         android:id="@+id/btnDelayThread"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="thread Delay Task" />
 
-          <Button
-              android:id="@+id/btnSynchronized"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_marginTop="10dp"
-              android:text="test Synchronized" />
-   
+    <Button
+        android:id="@+id/btnSynchronized"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="test Synchronized" />
+
+    <Button
+        android:id="@+id/btnCountDown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="test CountDown" />
+
+        <Button
+        android:id="@+id/btnSimpleCountDown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="test Simple CountDown" />
+    
     <TextView
         android:id="@+id/textProgress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+        android:layout_marginTop="10dp"
         android:text="TextView" />
-
-  
 
 </LinearLayout>

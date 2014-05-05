@@ -46,14 +46,14 @@
 
     <Button
         android:id="@+id/button2"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/Button01"
         android:layout_below="@+id/Button01"
         android:layout_marginLeft="26dp"
         android:layout_marginTop="30dp"
-        style="?android:attr/borderlessButtonStyle"
-        android:text="Button" />
+        android:text="ButtonText" />
 
     <Button
         android:id="@+id/button3"

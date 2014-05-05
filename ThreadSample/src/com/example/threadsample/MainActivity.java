@@ -3,6 +3,9 @@ package com.example.threadsample;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -51,6 +54,12 @@ public class MainActivity extends Activity implements
 		
 		Button btnSynchronized = (Button) this.findViewById(R.id.btnSynchronized);
 		btnSynchronized.setOnClickListener(this);
+		
+		Button btnCountDown= (Button) this.findViewById(R.id.btnCountDown);
+		btnCountDown.setOnClickListener(this);
+				
+		Button btnSimpleCountDown= (Button) this.findViewById(R.id.btnSimpleCountDown);
+		btnSimpleCountDown.setOnClickListener(this);
 	}
 
 	@Override
@@ -87,19 +96,32 @@ public class MainActivity extends Activity implements
 		if (arg0.getId() == R.id.btnDelayThread) {
 			Log.i(Tag, "1 seconds before");
 			new Handler().postDelayed(new Runnable(){
-
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
 					Log.i(Tag, "1 seconds later");
 				} 
-				
-				
 			}, 1000);
 		}
 		
 		if (arg0.getId() == R.id.btnSynchronized) {
 			testSynchronized();
+		}
+		
+		if (arg0.getId() == R.id.btnCountDown){
+			testCountDown();
+		}
+		
+		if (arg0.getId() == R.id.btnSimpleCountDown){
+			latch = new CountDownLatch(1);
+			 new Thread(new Runnable(){
+				@Override
+				public void run() {
+					simpleTestCountDown();
+				}
+			}).start(); 
+			
+			//simpleTestCountDown();
 		}
 	}
 	
@@ -275,9 +297,7 @@ public class MainActivity extends Activity implements
 	}
 	
 	class ResourceHelper{
-		
-		
-		
+	
 		public String getorder(){
 			String threadName = Thread.currentThread().getName();
 			Log.i(Tag, "get order "+ threadName);
@@ -292,4 +312,139 @@ public class MainActivity extends Activity implements
 		}
 	}
 
+	final int player_count = 5;
+	
+	void testCountDown(){		
+		CountDownLatch begin = new CountDownLatch(1);
+		CountDownLatch end = new CountDownLatch(player_count);
+		
+		Player[] plays = new Player[player_count];
+		for (int i=0;i<player_count;i++){
+			plays[i] = new Player(i,begin,end);
+		}
+		
+		ExecutorService exe = Executors.newFixedThreadPool(player_count);
+		for (Player p: plays){
+		    exe.execute(p);   
+		}
+		Log.i(Tag, "start --->:");
+	 
+		
+		begin.countDown();
+
+		try {
+			end.await();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Log.i(Tag, "end --->:");
+		exe.shutdown();
+	}
+	
+	public class Player implements Runnable{
+
+		int id;
+		private CountDownLatch begin;
+		private CountDownLatch end;
+		
+		public Player(int i,CountDownLatch begin,CountDownLatch end){
+			super();
+			this.id = i;
+			this.begin = begin;
+			this.end = end;
+		}
+		
+		@Override
+		public void run() {
+			
+			try {
+				begin.await();
+				Log.i(Tag,"id --->:"+id);
+				
+				runOnUiThread(new Runnable(){
+					@Override
+					public void run() {
+						txtMessage.setText("id --->:"+id);
+					}
+				} ); 
+				
+				  double random =  Math.random()*1000; 
+				  long sleepSeconds = (long)random;
+				Thread.sleep(sleepSeconds);
+				runOnUiThread(new Runnable(){
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						txtMessage.setText("id <---:"+id);
+					}
+				} ); 
+				
+				Log.i(Tag, "id <---: " + id + " sleepSeconds: " + sleepSeconds);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				end.countDown();
+			}
+			
+		}
+		
+	}
+
+	CountDownLatch latch = new CountDownLatch(1);
+	
+	void simpleTestCountDown(){	
+		Log.i(Tag, "simpleTestCountDown...");
+		new Thread(new Runnable(){
+			@Override
+			public void run() {			 
+				try {
+					Log.i(Tag, "before operation...");
+					//Thread.sleep(10000);
+					HttpClient client = new DefaultHttpClient();
+					HttpGet get = new HttpGet("https://mail.google.com/mail/?tab=wm");
+					HttpResponse response = client.execute(get);
+					HttpEntity entity = response.getEntity();
+					long length = entity.getContentLength();
+					InputStream is = entity.getContent();
+					String s = null;
+					if (is != null) {
+
+						ByteArrayOutputStream baos = new ByteArrayOutputStream();
+						byte[] buf = new byte[120];
+						int ch = -1;
+						int count = 0;
+						while ((ch = is.read(buf)) != -1) {
+							baos.write(buf, 0, ch);
+							count += ch;
+
+							if (length > 0) {
+								int progressValue = (int) (count / (float) length) * 100;
+							}
+						}
+						s = new String(baos.toByteArray());
+					}
+					Log.i(Tag, "result:" + s.length());
+					Log.i(Tag, "end operation...");
+				}  catch (ClientProtocolException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				latch.countDown();
+				Log.i(Tag, "countDown ...");
+			}
+		}).start();
+		
+		try {
+			latch.await();
+			Log.i(Tag, "await ...");
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
