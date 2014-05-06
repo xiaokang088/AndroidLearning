@@ -41,8 +41,9 @@ public class MainActivity extends Activity implements android.view.View.OnClickL
 	void showDialog(){
 		
 		Dialog dialog = new Dialog(this,R.style.CustomDialogTheme);
-		View v = LayoutInflater.from(this).inflate(R.layout.dialog_test,null);
-		dialog.setContentView(v);
+		//View v = LayoutInflater.from(this).inflate(R.layout.dialog_test,null);
+		//dialog.setContentView(v);
+		dialog.setContentView(R.layout.dialog_test);
 		dialog.show();
 	}
 	
