@@ -76,4 +76,15 @@
         android:background="@drawable/phone1"
         android:text="BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB" />
 
+        <Button
+        android:id="@+id/button5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/button2"
+        android:text="custom shape"
+        android:layout_alignBottom="@+id/button2"
+        android:layout_alignRight="@+id/Button01"
+        android:background="@drawable/button_selector"
+         />
+    
 </RelativeLayout>
