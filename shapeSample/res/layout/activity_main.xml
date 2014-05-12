@@ -50,4 +50,14 @@
         android:text="@string/hello_world"
         android:textColor="@color/text_color_white" />
     
+          <TextView
+        android:id="@+id/tvRight4"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_margin="10dp"
+        android:background="@drawable/btn_layer"
+        android:gravity="center"
+        android:text="@string/hello_world"
+        android:textColor="@color/text_color_white" />
+     
 </LinearLayout>
