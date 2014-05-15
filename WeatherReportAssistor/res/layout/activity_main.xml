@@ -12,25 +12,23 @@
 
     <LinearLayout
         android:id="@+id/layoutRequest"
-        android:background="#ccc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
 
         <EditText
             android:id="@+id/etCity"
-            android:layout_width="wrap_content"
+            android:layout_width="172dp"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:text="杭州"
-            android:hint="Please input city name" >
+            android:hint="请输入城市名称"
+            android:text="杭州" >
 
-            <requestFocus />
         </EditText>
 
         <Button
             android:id="@+id/btnGet"
-            android:layout_width="wrap_content"
+            android:layout_width="70dp"
             android:layout_height="wrap_content"
             android:text="查询" />
     </LinearLayout>
@@ -46,6 +44,7 @@
             android:orientation="vertical" >
 
             <ImageView
+                android:visibility="gone"
                 android:id="@+id/imgView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -56,8 +55,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="After input city name,  click [go] to query! "
-                android:textSize="20dp" />
+                android:text="输入城市名称，点击【查询】"
+                android:textSize="30dp" />
 
         </LinearLayout>
     </ScrollView>

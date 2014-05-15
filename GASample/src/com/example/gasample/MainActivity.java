@@ -108,6 +108,9 @@ public class MainActivity extends Activity implements
 				ACTION_PLAY, "Label",Long.MAX_VALUE).build();
 		parms.put(Fields.customDimension(1), "Red");
 		parms.put(Fields.customMetric(1), value);
+		
+		parms.put(Fields.SCREEN_NAME, value);
+		
 		Log.i(TAG, "Color:" + color + "		Value:" + value);
 		tracker.send(parms);
 	}

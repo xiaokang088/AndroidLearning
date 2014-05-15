@@ -32,11 +32,14 @@ import android.os.Environment;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -48,21 +51,23 @@ public class MainActivity extends Activity implements
 
 	String TAG = Keys.TAG;
 	EditText et;
-	final String defaultCityName = "º¼ÖÝ";
 	String currentCityName = "";
 	TextView tvShow;
 	ImageView imgView;
 	WeatherApplication application;
-	
-	WeatherHelper helper = new WeatherHelper(this);
-	public int MY_DATA_CHECK_CODE = 0;
 
+	boolean isRunning = false;
+	public int MY_DATA_CHECK_CODE = 0;
+	WeatherHelper helper = new WeatherHelper(this);
+	Button btnGet;
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		Button btnGet = (Button) this.findViewById(R.id.btnGet);
+		btnGet = (Button) this.findViewById(R.id.btnGet);
 		btnGet.setOnClickListener(this);
 
 		et = (EditText) this.findViewById(R.id.etCity);
@@ -75,7 +80,11 @@ public class MainActivity extends Activity implements
 		startActivityForResult(checkTTSIntent, MY_DATA_CHECK_CODE);*/
 		
 		application = WeatherApplication.getInstance();
+		String cityName = application.GetCity(this);
+		et.setText(cityName);
 	}
+	
+	 
 
 	protected void onNewIntent(Intent intent) {
 		Bundle bundle = intent.getExtras();
@@ -93,104 +102,18 @@ public class MainActivity extends Activity implements
 	}
 
 	public void onClick(View arg0) {
-		tvShow.setText("");
- 
 		currentCityName = et.getText().toString();
-
-		this.getApplication();
+		if (currentCityName.length() == 0){
+			tvShow.setText(Keys.PleaseInputCity);
+			return ;
+		}
+		 
+		application.SetCity(currentCityName,this);
+		
+		((InputMethodManager)getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(
+				this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);   
 		
 		getWeather();
-	}
-
-	void test() {
-		
-		File SDCardFile = Environment.getExternalStorageDirectory();
-		File sourceFile = new File(SDCardFile + "/a.txt");
-		
-		try {
-			FileInputStream fileInputStream = new FileInputStream(sourceFile);
-			ByteArrayOutputStream stream = new ByteArrayOutputStream();
-			
-			byte[] buffer = new byte[1024];
-			int len = -1;
-			
-			try {
-				len = fileInputStream.read(buffer);
-				
-				while(len!=-1){
-					stream.write(buffer,0,len);
-					len = fileInputStream.read(buffer);
-				}
-				String str = new String(stream.toByteArray());
-				int length = str.length();
-				
-				XmlPullParserFactory factory;
-				try {
-					factory = XmlPullParserFactory.newInstance();
-					factory.setNamespaceAware(true);
-					
-					XmlPullParser parse = factory.newPullParser();
-					parse.setInput(new StringReader(str));
-					int eventType =  parse.getEventType();
-					while( eventType != XmlPullParser.START_DOCUMENT){
-						 eventType = parse.next();
-					}
-					
-					
-				} catch (XmlPullParserException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				
-				
-				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		
-		
-		
-		/*String url = "http://www.baidu.com";
-		HttpGet get = new HttpGet(url);
-		HttpClient client = new DefaultHttpClient();
-		try {
-			HttpResponse response = client.execute(get);
-			HttpEntity entity = response.getEntity();
-			InputStream inputStream = entity.getContent();
-
-			//ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-
-			File sdCard = Environment.getExternalStorageDirectory();
-			File targetFile = new File(sdCard.getAbsoluteFile() + "/a.txt");
-			
-			FileOutputStream outStream = new FileOutputStream(targetFile);
-			byte[] buffer = new byte[512];
-			int len = -1;
-			len = inputStream.read(buffer);
-			while (len != -1) {
-				outStream.write(buffer, 0, len);
-				len = inputStream.read(buffer);
-			}
-			inputStream.close();
-			outStream.close();
-			
-			String str = new String(outStream.toByteArray());
-			int length=  str.length();
-			
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
 	}
 
 	/**
@@ -222,8 +145,6 @@ public class MainActivity extends Activity implements
 		myTTS.shutdown();
 	}
 
-	boolean isRunning = false;
-
 	void getWeather() {
 		new Thread(new Runnable() {
 			@Override
@@ -232,13 +153,14 @@ public class MainActivity extends Activity implements
 					return;
 				}
 
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						tvShow.setText(Keys.IsQuery);
+					}
+				});
+				
 				isRunning = true;
-				currentCityName = et.getText().toString();
-
-				if (currentCityName == null || currentCityName.length() <= 0) {
-					//currentCityName = defaultCityName;
-					currentCityName = application.getCurrentCity();
-				}
 
 				final String content = helper.GetWeather(currentCityName);
 				runOnUiThread(new Runnable() {
@@ -252,19 +174,6 @@ public class MainActivity extends Activity implements
 				isRunning = false;
 			}
 		}).start();
-	}
-
-	boolean checkWifiAvailable() {
-		try {
-			ConnectivityManager manager = (ConnectivityManager) this
-					.getSystemService(Context.CONNECTIVITY_SERVICE);
-			NetworkInfo info = manager
-					.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-			return info.isConnected();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		return false;
 	}
 
 	public TextToSpeech myTTS;

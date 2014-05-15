@@ -146,6 +146,12 @@ public class WeatherHelper {
 		 * String(21)：第三天的 气温，概况，风向和风力，图标一，图标二。 String(22) 被查询的城市或地区的介绍
 		 */
 		String province = parms[0];
+		if (province.contains(Keys.NullResult))
+		{
+			
+			return Keys.NotSupportArea;
+		}
+		
 		String city = parms[1];
 		String cityCode = parms[2];
 		String cityImageName = parms[3];
@@ -174,10 +180,10 @@ public class WeatherHelper {
 		String cityDescrption = parms[22];
 
 		StringBuilder builder = new StringBuilder();
-		builder.append("%s\r\n%s %s %s\r\n%s\r\n");
-		builder.append("\r\n");
+		builder.append("%s\n%s %s %s\n\n%s\n");
+		builder.append("\n");
 		builder.append("%s %s %s");
-		builder.append("\r\n");
+		builder.append("\n\n");
 		builder.append("%s %s %s");
 		builder.append("\r\n");
 		String content = String.format(builder.toString(), 
