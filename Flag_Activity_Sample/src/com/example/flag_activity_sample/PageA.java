@@ -11,13 +11,19 @@ public class PageA extends Activity implements
 
 	@Override
 	public void onClick(View v) {
-		try {
-			// TODO Auto-generated method stub
-			Intent newPageIntent = new Intent(this, PageB.class);
-			this.startActivity(newPageIntent);
-		} catch (Exception ex) {
-			ex.printStackTrace();
+		
+		if (v.getId() == R.id.button1) {
+			try {
+				// TODO Auto-generated method stub
+				Intent newPageIntent = new Intent(this, PageB.class);
+				this.startActivity(newPageIntent);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		} else {
+			
 		}
+		
 	}
 
 	void setClickListener(int btnID) {
@@ -30,7 +36,7 @@ public class PageA extends Activity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.page_a);
 		setClickListener(R.id.button1);
-
+		setClickListener(R.id.btnBack);
 	}
 
 }
