@@ -181,7 +181,7 @@ public class MainActivity extends Activity implements
 		Uri videoUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
 		// String[] selection= new String[] { MediaInfoNames.DCIM_DIR,
 		// MediaInfoNames.PICTURES_DIR, MediaInfoNames.DEFAULT_FS_DIR, }
-		Cursor mResult = cr.query(mUri, columns, null, null, null);
+		Cursor mResult = cr.query(videoUri, columns, null, null, null);
 
 		boolean isNull = mResult == null;
 
@@ -195,6 +195,9 @@ public class MainActivity extends Activity implements
 				path = mResult.getString(mResult
 						.getColumnIndex(MediaStore.Images.ImageColumns.DATA));
 
+				File  file = new File(path);
+				long fileLength = file.length();
+				double mbs= fileLength / 1024d / 1024d;
 				Toast.makeText(this, path, Toast.LENGTH_SHORT).show();
 			} while (mResult.moveToNext());
 		}
