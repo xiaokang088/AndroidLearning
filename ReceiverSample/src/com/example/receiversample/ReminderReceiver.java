@@ -1,6 +1,8 @@
 package com.example.receiversample;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -9,15 +11,18 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.Toast;
 
 public class ReminderReceiver extends BroadcastReceiver {
 
+	static String TAG = "ReminderReceiver";
 	@Override
 	public void onReceive(Context arg0, Intent arg1) {
 		// TODO Auto-generated method stub
-
-		Toast toast = Toast.makeText(arg0, "now again", Toast.LENGTH_SHORT);
+		Date date = new Date();
+		SimpleDateFormat format = new SimpleDateFormat();		
+		Toast toast = Toast.makeText(arg0, "now again: " + format.format(date), Toast.LENGTH_SHORT);
 		toast.show();
 	}
 
@@ -33,6 +38,7 @@ public class ReminderReceiver extends BroadcastReceiver {
 	}
 
 	public static void unRegisterReminder(Context context) {
+		Log.i(TAG, "unRegisterReminder: ");
 		AlarmManager manager = (AlarmManager) context
 				.getSystemService(Context.ALARM_SERVICE);
 		Intent intent = new Intent(context, ReminderReceiver.class);

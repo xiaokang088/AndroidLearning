@@ -22,7 +22,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name="com.example.receiversample.ReminderReceiver"
+        <receiver
+         
+             android:name="com.example.receiversample.ReminderReceiver"
             android:process="com.example.receiversample" />
     </application>
 
