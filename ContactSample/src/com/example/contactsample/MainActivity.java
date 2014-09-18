@@ -1,6 +1,7 @@
 package com.example.contactsample;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -34,22 +35,25 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 
+@SuppressWarnings("unused")
 public class MainActivity extends Activity implements
 		android.view.View.OnClickListener {
 
-	String path;
 	ContactHelper _contactHelper;
-	VCardHelper _vCardHelper ;
-	
+	VCardHelper _vCardHelper;
+	static String relativePath = "allContact.vcf";
+	String path;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		setOnClickListener(R.id.btnRead);
+		setOnClickListener(R.id.btnBackup);
 		setOnClickListener(R.id.btnTest);
-		setOnClickListener(R.id.btnReadAllContact);	
+		setOnClickListener(R.id.btnRestore);
 		_contactHelper = new ContactHelper(this);
 		_vCardHelper = new VCardHelper(this);
+		path = Environment.getExternalStorageDirectory() + "/" + relativePath;
 	}
 
 	@Override
@@ -69,114 +73,51 @@ public class MainActivity extends Activity implements
 		// TODO Auto-generated method stub
 		int vID = v.getId();
 
-		if (vID == R.id.btnRead) {
-			readContacts();
+		if (vID == R.id.btnBackup) {
+			backupContacts();
 		}
 
 		if (vID == R.id.btnTest) {
-			getContactSync();
+			test();
 		}
-		
-		if (vID == R.id.btnReadAllContact) {
-			getContacts();
+
+		if (vID == R.id.btnRestore) {
+			restoreContacts();
 		}
 	}
 
-	void read() {
-		 
-	}
+	void test() {
+		// ORG;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:=E4=B8=89=E5=A4=A7=E8=A1=97=3B=6E=75=6C=6C
+		String readString = "Coolpad";
+ 
+		QuotedPrintableCodec codec = new QuotedPrintableCodec();
 
-	void write() {
+		String encodeWords = codec.encode(readString);
+		String decodeWords = codec.decode(encodeWords);
 
-		 
+		int len = decodeWords.length();
+
 	}
 	
-	
-	void getContactSync(){
-		ContentResolver cr = this.getContentResolver();
-		 
-		Uri rawUri = RawContacts.CONTENT_URI;
-		String[] projections = new String[] {
-				ContactsContract.RawContacts.CONTACT_ID,
-				ContactsContract.Data.DISPLAY_NAME,
-				ContactsContract.RawContacts.SYNC1,
-				ContactsContract.RawContacts.SYNC2,
-				ContactsContract.RawContacts.SYNC3,
-				ContactsContract.RawContacts.SYNC4,};
-		Cursor rawContactCursor = cr.query(rawUri, projections, null, null,
-				null);
-
-		rawContactCursor.moveToFirst();
-		List<Integer> contactids = new ArrayList<Integer>();
-		if (rawContactCursor.getCount() > 0) {
-			do {
-				int id = rawContactCursor.getInt(0);
-				String name = rawContactCursor.getString(1);
-				String sync1 = rawContactCursor.getString(2);
-				String sync2 = rawContactCursor.getString(3);
-				String sync3 = rawContactCursor.getString(4);
-				String sync4 = rawContactCursor.getString(5);
-				contactids.add(id);
-			} while (rawContactCursor.moveToNext());
+	void backupContacts() {
+		List<VCardStruct> vCardStructs = _contactHelper.GetAllContacts();
+		if (vCardStructs.size() == 0) {
+			return;
 		}
-		rawContactCursor.close();
-	}
-	
-	void getContacts() {
-		ContentResolver cr = this.getContentResolver();
-		List<Integer> contactids = _contactHelper.GetContactids();
-		List<VCardStruct> VCardStructs = new ArrayList<VCardStruct>();
-		for (int contactID : contactids) {
-			VCardStruct contactStruct = _vCardHelper.getContactSturt(contactID, cr);
-			VCardStructs.add(contactStruct);
+		StringBuilder builder = new StringBuilder();
+
+		for (VCardStruct contactStruct : vCardStructs) {
+			if (contactStruct == null)
+				continue;
+			String content = contactStruct.ToVCardContent();
+			if (content != null)
+				builder.append(content + "\n");
 		}
-		VCardHelper.WriteToVCard(VCardStructs,null);
+		builder.deleteCharAt(builder.lastIndexOf("\n"));
+		FileUtil.Write(builder.toString(), path);
 	}
-	
-	static String relativePath = "allContact.vcf";
-	
-	void readContacts(){
-		ContentResolver cr = this.getContentResolver();
-	 
-	/*	String content = FileHelper
-				.ReadStringFromExternalStorageFile(relativePath);*/
-		String path = Environment.getDataDirectory() +"/" +relativePath;
-		String content =FileHelper.ReadStringFromFile(path );
-		
-		if (content != null) {
-			
-			String[] arr = content.split("\r\n");
-			
-			List<VCardStruct> vcardStructList = new ArrayList<VCardStruct>();
-			List<String> vcardContent = null;  
-			
-			for (String str : arr) {
-				if (str.startsWith(VCardStruct.startTag)) {
-					vcardContent = new ArrayList<String>();
-					vcardContent.add(str);
-					continue;
-				}
 
-				if (str.startsWith(VCardStruct.endTag)) {
-					if (vcardContent != null) {
-						vcardContent.add(str);						
-						VCardStruct struct = new VCardStruct(vcardContent);
-						vcardStructList.add(struct);
-					}
-					continue;
-				}
-
-				if (vcardContent != null) {
-					vcardContent.add(str);
-				}
-			}
-			
-			for (VCardStruct vCardStruct : vcardStructList) {
-				if (vCardStruct != null)
-					_vCardHelper.insertContact(vCardStruct);
-			}
-		 
-		} 
-	   
+	void restoreContacts() {
+		_contactHelper.WriteToPhone(path);
 	}
 }

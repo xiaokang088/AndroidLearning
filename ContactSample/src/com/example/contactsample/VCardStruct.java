@@ -15,6 +15,8 @@ public class VCardStruct {
 	String versionTag = "VERSION:";
 	String version = "3.0";
 
+	String encodingTag = ";CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE";
+	
 	// nickname
 	String FNTag = "FN:";
 	String NTag = "N:";
@@ -92,14 +94,13 @@ public class VCardStruct {
 				continue;
 			}
 
-			if (str.startsWith(this.NTag)) {
-				this.name = splitValue(str);
-				continue;
-			}
-
 			if (str.startsWith(this.FNTag)) {
 				this.nickName = splitValue(str);
 				continue;
+			}
+
+			if (this.nickName == null) {
+				this.nickName = this.name;
 			}
 
 			if (str.startsWith(this.ORGTag)) {
@@ -169,12 +170,15 @@ public class VCardStruct {
 	}
 
 	String splitValue(String content) {
+		// FN:nick
 		String[] arr = content.split(":");
-		if (arr.length >= 2) {
-			return arr[1];
-		} else {
-			return null;
+		if (arr.length == 2) {
+			String value = arr[1].trim();
+			if (value.length() == 0)
+				return null;
+			return VCardHelper.Decoding(value);
 		}
+		return null;
 	}
 
 	int findIndex(String typeStr, String[] strArr) {
@@ -186,14 +190,19 @@ public class VCardStruct {
 		return -2;
 	}
 
+	//TAG = "ADR;TYPE="
+	//encodingTag = ";CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE"
 	TypeValuePair splitTypeAndValue(String content, String TAG) {
+		// ADR;TYPE=HOME;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:;;;;=E6=B1=9F=E8=A5=BF=EF=BC=8C;;=E4=B8=AD=E5=9B=BD
 		TypeValuePair typeValuePair = null;
 		String contentValue = content.replace(TAG, "");
+		  contentValue = contentValue.replace(this.encodingTag, "");
 		if (contentValue != null) {
 			String[] typeValueArr = contentValue.split(":");
-			if (typeValueArr.length >= 2) {
+			if (typeValueArr.length == 2) {
 				typeValuePair = new TypeValuePair();
-				typeValuePair.value = typeValueArr[1];
+				String value = typeValueArr[1].trim();
+				typeValuePair.value = VCardHelper.Decoding(value);
 				typeValuePair.typeStr = typeValueArr[0];
 			}
 		}
@@ -201,13 +210,16 @@ public class VCardStruct {
 		return typeValuePair;
 	}
 
-	public void SetName(String name, String nickName) {
+	public void SetName(String name) {
 		this.name = name;
-		this.nickName = nickName;
 	}
 
 	public String GetName() {
 		return this.name;
+	}
+
+	public void SetNickName(String nickName) {
+		this.nickName = nickName;
 	}
 
 	public String GetNickName() {
@@ -285,7 +297,6 @@ public class VCardStruct {
 	}
 
 	public String ToVCardContent() {
-
 		if (this.name == null)
 			return null;
 
@@ -293,75 +304,187 @@ public class VCardStruct {
 
 		StringBuilder builder = new StringBuilder();
 		builder.append(startTag);
-		builder.append("\r\n");
+		builder.append("\n");
 		builder.append(versionTag);
 		builder.append(version);
-		builder.append("\r\n");
+		builder.append("\n");
 
 		if (this.uid != null) {
 			builder.append(String.format(UIDTag + "%s", this.uid));
-			builder.append("\r\n");
+			builder.append("\n");
 		}
 
-		if (this.nickName != null) {
-			builder.append(String.format(FNTag + "%s", this.nickName));
-			builder.append("\r\n");
-		}
+		builder.append(getEncodeWords(NTag,this.name));
+		builder.append("\n");
 
-		builder.append(String.format(NTag + "%s", this.name));
-		builder.append("\r\n");
+		String nickName = (this.nickName == null ? this.name : this.nickName);
+		builder.append(getEncodeWords(FNTag,nickName));		
+		builder.append("\n");
 
 		if (this.title != null) {
-			builder.append(String.format(TitleTag + "%s", this.title));
-			builder.append("\r\n");
+			builder.append(getEncodeWords(TitleTag,this.title));
+			builder.append("\n");
 		}
 
 		if (this.org != null) {
-			builder.append(String.format(this.ORGTag + "%s", this.org));
-			builder.append("\r\n");
+			builder.append(getEncodeWords(ORGTag,this.org));
+			builder.append("\n");
 		}
 
 		if (this.url != null) {
-			builder.append(String.format(this.urlTag + "%s", this.url));
-			builder.append("\r\n");
+			builder.append(getEncodeWords(urlTag,this.url));
+			builder.append("\n");
 		}
 
 		if (this.note != null) {
-			builder.append(String.format(this.NOTETag + "%s", this.note));
-			builder.append("\r\n");
+			builder.append(getEncodeWords(NOTETag,this.note));
+			builder.append("\n");
 		}
 
 		for (int emailtype : emailTypeMap.keySet()) {
 			String email = emailTypeMap.get(emailtype);
-			String emailContent = String.format(this.emailTag + "%s:%s",
+			String emailContent = getEncodeWords(this.emailTag,
 					emailTypes[emailtype - 1], email);
+			
 			builder.append(emailContent);
-			builder.append("\r\n");
+			builder.append("\n");
 		}
 
 		for (int telType : telTypeMap.keySet()) {
 			String tel = telTypeMap.get(telType);
-			String telContent = String.format(this.telTag + "%s:%s",
+			String telContent = getEncodeWords(this.telTag,
 					telTypes[telType - 1], tel);
 			builder.append(telContent);
-			builder.append("\r\n");
+			builder.append("\n");
 		}
 
 		for (int adrType : addressTypeMap.keySet()) {
 			String adr = addressTypeMap.get(adrType);
-			String adrContent = String.format(this.AdrTag + "%s:%s",
+			String adrContent = getEncodeWords(this.AdrTag,
 					addressTypes[adrType - 1], adr);
+			
 			builder.append(adrContent);
-			builder.append("\r\n");
+			builder.append("\n");
 		}
 
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd hhmmss");
 		String dateStr = dateFormat.format(System.currentTimeMillis());
 		builder.append(String.format(this.revTag, dateStr));
-		builder.append("\r\n");
+		builder.append("\n");
 		builder.append(endTag);
 		ret = builder.toString();
 		return ret;
+	}
+
+	String getEncodeWords(String tag, String value) {
+		String ret = "";
+
+		String encodeValue = VCardHelper.Encoding(value);
+		if (encodeValue.equalsIgnoreCase(value)) {
+			// FN:nick
+		} else {
+			// FN;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:=E4=B8=89=E5=A4=A7=E8=A1=97=3B=6E=75=6C=6C
+			tag = tag.replace(":", encodingTag+":");
+		}
+
+		ret = String.format(tag + "%s", encodeValue);
+		return ret;
+	}
+	
+	String getEncodeWords(String tag, String type, String value) {
+		String ret = "";
+
+		String encodeValue = VCardHelper.Encoding(value);
+		if (encodeValue.equalsIgnoreCase(value)) {
+			// ADR;TYPE=HOME:Hangzhou
+			tag = tag + type + ":";
+		} else {
+			// ADR;TYPE=HOME;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:;;;;=E6=B1=9F=E8=A5=BF=EF=BC=8C;;=E4=B8=AD=E5=9B=BD
+			tag = tag + type +encodingTag + ":";
+		}
+
+		ret = String.format(tag + "%s", encodeValue);
+		return ret;
+	}
+	
+	public boolean IsEqual(VCardStruct otherVCardStruct) {
+		if (otherVCardStruct == null)
+			return false;
+
+		/*
+		 * String name, nickName; String org; String url; String title; String
+		 * uid; String photo; String note; String rev;
+		 */
+		if (!compareString(otherVCardStruct.name, this.name))
+			return false;
+
+		if (!compareString(otherVCardStruct.nickName, this.nickName))
+			return false;
+		if (!compareString(otherVCardStruct.org, this.org))
+			return false;
+		if (!compareString(otherVCardStruct.url, this.url))
+			return false;
+		if (!compareString(otherVCardStruct.title, this.title))
+			return false;
+		/*
+		 * if (!compareString(otherVCardStruct.uid, this.uid)) return false;
+		 * if (!compareString(otherVCardStruct.photo, this.photo)) return false;
+		 * if (!compareString(otherVCardStruct.rev, this.rev)) return false;
+		 */
+		if (!compareString(otherVCardStruct.note, this.note))
+			return false;
+		HashMap<Integer, String> otherAddressTypeMap = otherVCardStruct.addressTypeMap;
+
+		for (int key : otherAddressTypeMap.keySet()) {
+			if (this.addressTypeMap.containsKey(key)
+					&& compareString(this.addressTypeMap.get(key),
+							otherAddressTypeMap.get(key))) {
+			} else {
+				return false;
+			}
+		}
+
+		HashMap<Integer, String> otherEmailTypeMap = otherVCardStruct.emailTypeMap;
+		for (int key : otherEmailTypeMap.keySet()) {
+			if (this.emailTypeMap.containsKey(key)
+					&& compareString(this.emailTypeMap.get(key),
+							otherEmailTypeMap.get(key))) {
+			} else {
+				return false;
+			}
+		}
+
+		HashMap<Integer, String> otherTelTypeMap = otherVCardStruct.telTypeMap;
+		for (int key : otherTelTypeMap.keySet()) {
+			if (this.telTypeMap.containsKey(key)
+					&& compareString(this.telTypeMap.get(key),
+							otherTelTypeMap.get(key))) {
+			} else {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	boolean compareString(String leftOne, String rightOne) {
+		if (leftOne != null)
+			leftOne = leftOne.trim();
+		if (rightOne != null)
+			rightOne = rightOne.trim();
+
+		int leftLength = leftOne == null ? 0 : leftOne.length();
+		int rightLength = rightOne == null ? 0 : rightOne.length();
+
+		if (leftLength == 0 && rightLength == 0)
+			return true;
+
+		if (leftOne == null || rightOne == null)
+			return false;
+		
+		if (leftOne.equalsIgnoreCase(rightOne))
+			return true;
+		return false;
 	}
 
 	class TypeValuePair {

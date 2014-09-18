@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.Nickname;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.RawContacts;
 import android.provider.ContactsContract.CommonDataKinds.Email;
@@ -27,7 +28,7 @@ public class VCardHelper {
 
 	// content://com.android.contacts/data
 	Uri dataUri = ContactsContract.Data.CONTENT_URI;
-	static String _defaultPath = "allContact.vcf";
+
 	String[] dataProjections = new String[] {
 			ContactsContract.RawContacts.CONTACT_ID,
 			ContactsContract.RawContacts.Data.MIMETYPE,
@@ -47,14 +48,14 @@ public class VCardHelper {
 			ContactsContract.RawContacts.Data.DATA14,
 			ContactsContract.RawContacts.Data.DATA15, };
 	Context _context;
-	
+
 	public VCardHelper(Context context) {
 		_context = context;
 	}
-		
-	public  VCardStruct getContactSturt(int contactID, ContentResolver cr) {
-		VCardStruct contactStuct = new VCardStruct();
-		contactStuct.setUID(Integer.toString(contactID));
+
+	public VCardStruct getContactSturt(int contactID, ContentResolver cr) {
+		VCardStruct contactStruct = new VCardStruct();
+		contactStruct.setUID(Integer.toString(contactID));
 		String selectoin = RawContacts.CONTACT_ID + " == " + contactID;
 		Cursor dataCursor = cr.query(dataUri, dataProjections, selectoin, null,
 				null);
@@ -66,64 +67,71 @@ public class VCardHelper {
 				String mimeType = this.getString("mimetype", dataCursor);
 
 				if (mimeType.equalsIgnoreCase(Email.CONTENT_ITEM_TYPE)) {
-					parseEmail(contactStuct, dataCursor);
+					parseEmail(contactStruct, dataCursor);
 					continue;
 				}
 
 				if (mimeType.equalsIgnoreCase(Phone.CONTENT_ITEM_TYPE)) {
-					parsePhone(contactStuct, dataCursor);
+					parsePhone(contactStruct, dataCursor);
 					continue;
 				}
 
 				if (mimeType.equalsIgnoreCase(StructuredName.CONTENT_ITEM_TYPE)) {
-					parseName(contactStuct, dataCursor);
+					parseName(contactStruct, dataCursor);
+					continue;
+				}
+
+				if (mimeType.equalsIgnoreCase(Nickname.CONTENT_ITEM_TYPE)) {
+					parsNickName(contactStruct, dataCursor);
 					continue;
 				}
 
 				if (mimeType.equalsIgnoreCase(Organization.CONTENT_ITEM_TYPE)) {
-					parseOrganization(contactStuct, dataCursor);
+					parseOrganization(contactStruct, dataCursor);
 					continue;
 				}
 
 				if (mimeType.equalsIgnoreCase(Website.CONTENT_ITEM_TYPE)) {
-					parseWebSite(contactStuct, dataCursor);
+					parseWebSite(contactStruct, dataCursor);
 					continue;
 				}
 
 				if (mimeType
 						.equalsIgnoreCase(StructuredPostal.CONTENT_ITEM_TYPE)) {
-					parseAddress(contactStuct, dataCursor);
+					parseAddress(contactStruct, dataCursor);
 					continue;
 				}
 
 				if (mimeType.equalsIgnoreCase(Im.CONTENT_ITEM_TYPE)) {
-					parseIm(contactStuct, dataCursor);
+					parseIm(contactStruct, dataCursor);
 					continue;
 				}
 
 				if (mimeType.equalsIgnoreCase(Note.CONTENT_ITEM_TYPE)) {
-					parseNote(contactStuct, dataCursor);
+					parseNote(contactStruct, dataCursor);
 					continue;
 				}
 
 				if (mimeType.equalsIgnoreCase(Im.CONTENT_ITEM_TYPE)) {
-					parseIm(contactStuct, dataCursor);
+					parseIm(contactStruct, dataCursor);
 					continue;
 				}
 
 			} while (dataCursor.moveToNext());
 		}
 		dataCursor.close();
-		return contactStuct;
+		if (contactStruct.nickName == null)
+			contactStruct.nickName = contactStruct.name;
+		return contactStruct;
 	}
 
-	public void insertContact(VCardStruct vcard){
+	public void insertContact(VCardStruct vcard) {
 		try {
 			ContentResolver cr = _context.getContentResolver();
 			ContentValues values = new ContentValues();
 			Uri rawContactUri = cr.insert(RawContacts.CONTENT_URI, values);
 			long rawContactId = ContentUris.parseId(rawContactUri);
-		
+
 			values.clear();
 			values.put(Data.RAW_CONTACT_ID, rawContactId);
 			values.put(Data.MIMETYPE, StructuredName.CONTENT_ITEM_TYPE);
@@ -131,7 +139,7 @@ public class VCardHelper {
 			cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
 					values);
 
-			//phone
+			// phone
 			HashMap<Integer, String> telTypeMap = vcard.GetTel();
 			if (telTypeMap != null && telTypeMap.size() > 0) {
 				for (int telType : telTypeMap.keySet()) {
@@ -141,12 +149,13 @@ public class VCardHelper {
 					String tel = telTypeMap.get(telType);
 					values.put(Phone.NUMBER, tel);
 					values.put(Phone.TYPE, telType);
-					cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
+					cr.insert(
+							android.provider.ContactsContract.Data.CONTENT_URI,
 							values);
 				}
 			}
-		
-			//Email
+
+			// Email
 			HashMap<Integer, String> emailTypeMap = vcard.GetEmail();
 			if (emailTypeMap != null && emailTypeMap.size() > 0) {
 				for (int emailtype : emailTypeMap.keySet()) {
@@ -156,21 +165,23 @@ public class VCardHelper {
 					String email = emailTypeMap.get(emailtype);
 					values.put(Email.DATA, email);
 					values.put(Email.TYPE, emailtype);
-					cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
+					cr.insert(
+							android.provider.ContactsContract.Data.CONTENT_URI,
 							values);
 				}
-			
+
 			}
-			
-			//Address
+
+			// Address
 			HashMap<Integer, String> addressTypeMap = vcard.GetAddress();
 			if (addressTypeMap != null && addressTypeMap.size() > 0) {
 				for (int adrType : addressTypeMap.keySet()) {
 					values.clear();
 					values.put(Data.RAW_CONTACT_ID, rawContactId);
-					values.put(Data.MIMETYPE, StructuredPostal.CONTENT_ITEM_TYPE);
+					values.put(Data.MIMETYPE,
+							StructuredPostal.CONTENT_ITEM_TYPE);
 					String adr = addressTypeMap.get(adrType);
-					
+
 					String[] adrArray = adr.split(";");
 					if (adrArray != null && adrArray.length >= 7) {
 						values.put(StructuredPostal.POBOX, adrArray[0]);
@@ -185,14 +196,15 @@ public class VCardHelper {
 					}
 
 					values.put(StructuredPostal.TYPE, adrType);
-					cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
+					cr.insert(
+							android.provider.ContactsContract.Data.CONTENT_URI,
 							values);
 				}
-			
+
 			}
-		 
-			String note =  vcard.GetNote();
-			if(note!=null){
+
+			String note = vcard.GetNote();
+			if (note != null) {
 				values.clear();
 				values.put(Data.RAW_CONTACT_ID, rawContactId);
 				values.put(Data.MIMETYPE, Note.CONTENT_ITEM_TYPE);
@@ -200,27 +212,35 @@ public class VCardHelper {
 				cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
 						values);
 			}
-			
+
+			// org
 			String org = vcard.GetOrg();
-			if(org!=null){
-				values.clear();
-				values.put(Data.RAW_CONTACT_ID, rawContactId);
-				values.put(Data.MIMETYPE, Organization.CONTENT_ITEM_TYPE );
-				values.put(Organization.COMPANY, org);
-				cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
-						values);
+			if (org != null) {
+				String[] orgs = org.split(";");
+				if (orgs.length >= 2) {
+					values.clear();
+					values.put(Data.RAW_CONTACT_ID, rawContactId);
+					values.put(Data.MIMETYPE, Organization.CONTENT_ITEM_TYPE);
+					if (orgs[0] != "null")
+						values.put(Organization.COMPANY, orgs[0]);
+					if (orgs[1] != "null")
+						values.put(Organization.DEPARTMENT, orgs[1]);
+					cr.insert(
+							android.provider.ContactsContract.Data.CONTENT_URI,
+							values);
+				}
 			}
-			
+
 			String title = vcard.GetTitle();
-			if(title!=null){
+			if (title != null) {
 				values.clear();
 				values.put(Data.RAW_CONTACT_ID, rawContactId);
-				values.put(Data.MIMETYPE, Organization.CONTENT_ITEM_TYPE );
+				values.put(Data.MIMETYPE, Organization.CONTENT_ITEM_TYPE);
 				values.put(Organization.TITLE, title);
 				cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
 						values);
 			}
-		
+
 			String url = vcard.GetUrl();
 			if (url != null) {
 				values.clear();
@@ -230,76 +250,12 @@ public class VCardHelper {
 				cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
 						values);
 			}
-			
+
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
-	
-	public static void WriteToVCard(VCardStruct contactStruct) {
-		String relativePath = contactStruct.name + ".vcf";
-		String content = contactStruct.ToVCardContent();
-		FileHelper.WriteInExternalStorageFile(content, relativePath);
-	}
 
-	public static void WriteToVCard(List<VCardStruct> contactStructs, String path) {
-	
-		StringBuilder builder = new StringBuilder();
-	
-		if(path == null){
-			path = FileHelper.GetRelativePathInExternalStorage(_defaultPath);
-		}
-		
-		for (VCardStruct contactStruct : contactStructs) {
-			if (contactStruct == null)
-				continue;
-			String content = contactStruct.ToVCardContent();
-			if (content != null)
-				builder.append(content + "\r\n\r\n");
-		}
-		
-		FileHelper.Write(builder.toString(), path);
-	}
-	
-	public static List<VCardStruct> ReadFromVCard(String path) {
-		List<VCardStruct> vcardStructList = null;
-		if (path == null) {
-			path = FileHelper.GetRelativePathInExternalStorage(_defaultPath);
-		}
-
-		String content = FileHelper.ReadStringFromFile(path);
-
-		if (content != null) {
-
-			String[] arr = content.split("\r\n");
-
-			vcardStructList = new ArrayList<VCardStruct>();
-			List<String> vcardContent = null;
-
-			for (String str : arr) {
-				if (str.startsWith(VCardStruct.startTag)) {
-					vcardContent = new ArrayList<String>();
-					vcardContent.add(str);
-					continue;
-				}
-
-				if (str.startsWith(VCardStruct.endTag)) {
-					if (vcardContent != null) {
-						vcardContent.add(str);
-						VCardStruct struct = new VCardStruct(vcardContent);
-						vcardStructList.add(struct);
-					}
-					continue;
-				}
-
-				if (vcardContent != null) {
-					vcardContent.add(str);
-				}
-			}
-		}
-		return vcardStructList;
-	}
-	
 	void parseEmail(VCardStruct contactStuct, Cursor dataCursor) {
 		/*
 		 * http://developer.android.com/reference/android/provider/ContactsContract
@@ -337,17 +293,20 @@ public class VCardHelper {
 	void parseName(VCardStruct contactStuct, Cursor dataCursor) {
 
 		/*
-		 * String DISPLAY_NAME DATA1 String GIVEN_NAME DATA2 String FAMILY_NAME
-		 * DATA3 String PREFIX DATA4 Common prefixes in English names are "Mr",
-		 * "Ms", "Dr" etc. String MIDDLE_NAME DATA5 String SUFFIX DATA6 Common
-		 * suffixes in English names are "Sr", "Jr", "III" etc. String
-		 * PHONETIC_GIVEN_NAME DATA7 Used for phonetic spelling of the name,
-		 * e.g. Pinyin, Katakana, Hiragana String PHONETIC_MIDDLE_NAME DATA8
-		 * String PHONETIC_FAMILY_NAME DATA9
+		 * http://developer.android.com/reference/android/provider/ContactsContract
+		 * .CommonDataKinds.StructuredName.html
 		 */
 		String data1 = this.getString(ContactsContract.RawContacts.Data.DATA1,
 				dataCursor);
-		contactStuct.SetName(data1, null);
+		contactStuct.SetName(data1);
+	}
+
+	void parsNickName(VCardStruct contactStuct, Cursor dataCursor) {
+
+		// http://developer.android.com/reference/android/provider/ContactsContract.CommonDataKinds.Nickname.html
+		String data1 = this.getString(ContactsContract.RawContacts.Data.DATA1,
+				dataCursor);
+		contactStuct.SetNickName(data1);
 	}
 
 	void parseOrganization(VCardStruct contactStuct, Cursor dataCursor) {
@@ -374,25 +333,28 @@ public class VCardHelper {
 				.getColumnIndex(ContactsContract.RawContacts.Data.DATA4));
 		String data5 = dataCursor.getString(dataCursor
 				.getColumnIndex(ContactsContract.RawContacts.Data.DATA5));
-		String data6 = dataCursor.getString(dataCursor
-				.getColumnIndex(ContactsContract.RawContacts.Data.DATA6));
-		String data7 = dataCursor.getString(dataCursor
-				.getColumnIndex(ContactsContract.RawContacts.Data.DATA7));
-		String data8 = dataCursor.getString(dataCursor
-				.getColumnIndex(ContactsContract.RawContacts.Data.DATA8));
-		String data9 = dataCursor.getString(dataCursor
-				.getColumnIndex(Organization.OFFICE_LOCATION));
-
-		String data10 = this.getString(Organization.PHONETIC_NAME_STYLE,
-				dataCursor);
+		/*
+		 * String data6 = dataCursor.getString(dataCursor
+		 * .getColumnIndex(ContactsContract.RawContacts.Data.DATA6)); String
+		 * data7 = dataCursor.getString(dataCursor
+		 * .getColumnIndex(ContactsContract.RawContacts.Data.DATA7)); String
+		 * data8 = dataCursor.getString(dataCursor
+		 * .getColumnIndex(ContactsContract.RawContacts.Data.DATA8)); String
+		 * data9 = dataCursor.getString(dataCursor
+		 * .getColumnIndex(Organization.OFFICE_LOCATION));
+		 * 
+		 * 
+		 * String data10 = this.getString(Organization.PHONETIC_NAME_STYLE,
+		 * dataCursor);
+		 */
 
 		contactStuct.setOrg(data1 + ";" + data5);
 		contactStuct.SetTitle(data4);
 	}
 
 	void parseWebSite(VCardStruct contactStuct, Cursor dataCursor) {
-		//ContactsContract.CommonDataKinds.Website 
-		//String URL DATA1
+		// ContactsContract.CommonDataKinds.Website
+		// String URL DATA1
 		// int TYPE DATA2 Allowed values are:
 		// TYPE_CUSTOM. Put the actual type in LABEL.
 		// TYPE_HOMEPAGE
@@ -522,4 +484,14 @@ public class VCardHelper {
 		return ret;
 	}
 
+	static QuotedPrintableCodec codec = new  QuotedPrintableCodec();
+	
+	public static String Encoding(String str){
+		return codec.encode(str);
+	}
+
+	public static String Decoding(String str){
+		return codec.decode(str);
+	}
+	
 }

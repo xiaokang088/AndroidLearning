@@ -34,15 +34,8 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.CharArrayBuffer;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceActivity.Header;
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;

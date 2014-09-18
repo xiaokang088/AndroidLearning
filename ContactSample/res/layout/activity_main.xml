@@ -11,20 +11,21 @@
     tools:context=".MainActivity" >
 
     <Button
-        android:id="@+id/btnRead"
+        android:id="@+id/btnRestore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="restore" />
+        android:text="restore from  sdcard" />
 
-        <Button
-        android:id="@+id/btnReadAllContact"
+    <Button
+        android:id="@+id/btnBackup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="backup to sdcard" />
-        
-            <Button
+
+    <Button
         android:id="@+id/btnTest"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=" test  " />
+
 </LinearLayout>
