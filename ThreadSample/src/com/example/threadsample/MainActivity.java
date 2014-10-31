@@ -85,7 +85,7 @@ public class MainActivity extends Activity implements
 
 		if (arg0.getId() == R.id.btnAsyncTask) {
 			Pagetask task = new Pagetask(this);
-			String parm = "http://www.baidu.com";
+			String parm = "http://commonsware.com/Android/excerpt.pdf";
 			task.execute(parm);
 		}
 
@@ -188,28 +188,19 @@ public class MainActivity extends Activity implements
 
 	class Pagetask extends AsyncTask<String, Integer, String> {
 		ProgressDialog pdialog;
-
+		HttpClient client;
 		public Pagetask(Context context) {
-
+			 client = new DefaultHttpClient();
 			pdialog = new ProgressDialog(context, 0);
-
-			pdialog.setButton("cancel", new DialogInterface.OnClickListener() {
-
+			pdialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+				
 				@Override
-				public void onClick(DialogInterface arg0, int arg1) {
-					// TODO Auto-generated method stub
+				public void onClick(DialogInterface dialog, int which) {
+					client.getConnectionManager().shutdown();
 					pdialog.cancel();
 				}
 			});
-
-			pdialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-
-				@Override
-				public void onCancel(DialogInterface arg0) {
-					// TODO Auto-generated method stub
-					finish();
-				}
-			});
+			 
 
 			pdialog.setCancelable(true);
 			pdialog.setMax(100);
@@ -221,7 +212,7 @@ public class MainActivity extends Activity implements
 		protected String doInBackground(String... arg0) {
 
 			try {
-				HttpClient client = new DefaultHttpClient();
+			
 				HttpGet get = new HttpGet(arg0[0]);
 
 				HttpResponse response = client.execute(get);
@@ -233,15 +224,18 @@ public class MainActivity extends Activity implements
 				if (is != null) {
 
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					byte[] buf = new byte[120];
+					byte[] buf = new byte[1024];
 					int ch = -1;
-					int count = 0;
+					float count = 0;
 					while ((ch = is.read(buf)) != -1) {
 						baos.write(buf, 0, ch);
 						count += ch;
 
 						if (length > 0) {
-							int progressValue = (int) (count / (float) length) * 100;
+							float value = (count / (float) length);
+							Log.i(Tag, "progress:"+value);
+							int progressValue = (int)(value * 100);
+							Log.i(Tag, "progressValue:"+progressValue);
 							this.publishProgress(progressValue);
 						}
 						Thread.sleep(100);
@@ -258,6 +252,7 @@ public class MainActivity extends Activity implements
 		@Override
 		protected void onCancelled() {
 			super.onCancelled();
+			client.getConnectionManager().shutdown();
 		}
 
 		@Override
