@@ -26,6 +26,9 @@ public class MainActivity extends Activity implements android.view.View.OnClickL
         txtWifi = (TextView)this.findViewById(R.id.txtWifi);
         Button btnAgain= (Button)this.findViewById(R.id.btnAgain);
         btnAgain.setOnClickListener(this);
+        Button btnDownload= (Button)this.findViewById(R.id.btnDownload);
+        btnDownload.setOnClickListener(this);
+        
     }
     
  
@@ -54,14 +57,25 @@ public class MainActivity extends Activity implements android.view.View.OnClickL
         Log.i(Tag, "mobile state " + mobile);
         Log.i(Tag, "wifi state " + wifiState);
         Log.i(Tag, "wifi is available ? " + wifiInfo.isAvailable());
-        
-       
-        
     }
     
     public void onClick(View view){
     	if (view.getId() == R.id.btnAgain){
     		checkNetworkInfo();
     	}
+    	
+    	if (view.getId() == R.id.btnDownload){
+    		download();
+    	}
+    }
+    
+    void download(){  	
+    	Thread thread = new Thread(new Runnable(){
+			@Override
+			public void run() {
+				new SocketChannelReader().getHTMLContent();
+			}
+    	});
+    	thread.start();
     }
 }
