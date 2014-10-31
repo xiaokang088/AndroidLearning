@@ -125,7 +125,7 @@ public class VCardHelper {
 		return contactStruct;
 	}
 
-	public void insertContact(VCardStruct vcard) {
+	public void InsertContact(VCardStruct vcard) {
 		try {
 			ContentResolver cr = _context.getContentResolver();
 			ContentValues values = new ContentValues();
@@ -140,119 +140,231 @@ public class VCardHelper {
 					values);
 
 			// phone
-			HashMap<Integer, String> telTypeMap = vcard.GetTel();
-			if (telTypeMap != null && telTypeMap.size() > 0) {
-				for (int telType : telTypeMap.keySet()) {
-					values.clear();
-					values.put(Data.RAW_CONTACT_ID, rawContactId);
-					values.put(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE);
-					String tel = telTypeMap.get(telType);
-					values.put(Phone.NUMBER, tel);
-					values.put(Phone.TYPE, telType);
-					cr.insert(
-							android.provider.ContactsContract.Data.CONTENT_URI,
-							values);
-				}
-			}
+			insertPhone(vcard, rawContactId, cr);
 
 			// Email
-			HashMap<Integer, String> emailTypeMap = vcard.GetEmail();
-			if (emailTypeMap != null && emailTypeMap.size() > 0) {
-				for (int emailtype : emailTypeMap.keySet()) {
-					values.clear();
-					values.put(Data.RAW_CONTACT_ID, rawContactId);
-					values.put(Data.MIMETYPE, Email.CONTENT_ITEM_TYPE);
-					String email = emailTypeMap.get(emailtype);
-					values.put(Email.DATA, email);
-					values.put(Email.TYPE, emailtype);
-					cr.insert(
-							android.provider.ContactsContract.Data.CONTENT_URI,
-							values);
-				}
-
-			}
+			insertEmail(vcard, rawContactId, cr);
 
 			// Address
-			HashMap<Integer, String> addressTypeMap = vcard.GetAddress();
-			if (addressTypeMap != null && addressTypeMap.size() > 0) {
-				for (int adrType : addressTypeMap.keySet()) {
-					values.clear();
-					values.put(Data.RAW_CONTACT_ID, rawContactId);
-					values.put(Data.MIMETYPE,
-							StructuredPostal.CONTENT_ITEM_TYPE);
-					String adr = addressTypeMap.get(adrType);
-
-					String[] adrArray = adr.split(";");
-					if (adrArray != null && adrArray.length >= 7) {
-						values.put(StructuredPostal.POBOX, adrArray[0]);
-						values.put(StructuredPostal.DATA6, adrArray[1]);
-						values.put(StructuredPostal.DATA4, adrArray[2]);
-						values.put(StructuredPostal.DATA7, adrArray[3]);
-						values.put(StructuredPostal.DATA8, adrArray[4]);
-						values.put(StructuredPostal.DATA9, adrArray[5]);
-						values.put(StructuredPostal.DATA10, adrArray[6]);
-					} else {
-						values.put(StructuredPostal.DATA, adr);
-					}
-
-					values.put(StructuredPostal.TYPE, adrType);
-					cr.insert(
-							android.provider.ContactsContract.Data.CONTENT_URI,
-							values);
-				}
-
-			}
+			insertAddress(vcard, rawContactId, cr);
 
 			String note = vcard.GetNote();
-			if (note != null) {
-				values.clear();
-				values.put(Data.RAW_CONTACT_ID, rawContactId);
-				values.put(Data.MIMETYPE, Note.CONTENT_ITEM_TYPE);
-				values.put(Note.NOTE, note);
-				cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
-						values);
-			}
+			this.insertNote(note, rawContactId, cr);
 
 			// org
 			String org = vcard.GetOrg();
-			if (org != null) {
-				String[] orgs = org.split(";");
-				if (orgs.length >= 2) {
-					values.clear();
-					values.put(Data.RAW_CONTACT_ID, rawContactId);
-					values.put(Data.MIMETYPE, Organization.CONTENT_ITEM_TYPE);
-					if (orgs[0] != "null")
-						values.put(Organization.COMPANY, orgs[0]);
-					if (orgs[1] != "null")
-						values.put(Organization.DEPARTMENT, orgs[1]);
-					cr.insert(
-							android.provider.ContactsContract.Data.CONTENT_URI,
-							values);
-				}
-			}
+			this.insertOrg(org, rawContactId, cr);
 
 			String title = vcard.GetTitle();
-			if (title != null) {
-				values.clear();
-				values.put(Data.RAW_CONTACT_ID, rawContactId);
-				values.put(Data.MIMETYPE, Organization.CONTENT_ITEM_TYPE);
-				values.put(Organization.TITLE, title);
-				cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
-						values);
-			}
+			this.insertTitle(title, rawContactId, cr);
 
 			String url = vcard.GetUrl();
-			if (url != null) {
-				values.clear();
-				values.put(Data.RAW_CONTACT_ID, rawContactId);
-				values.put(Data.MIMETYPE, Website.CONTENT_ITEM_TYPE);
-				values.put(Website.URL, url);
-				cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
-						values);
-			}
+			this.insertUrl(url, rawContactId, cr);
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
+		}
+	}
+
+	public void MergeContact(VCardStruct oldCard, VCardStruct newCard) {
+		if (newCard == null)
+			return;
+
+		/*
+		 * String name, nickName; String org; String url; String title; String
+		 * uid; String photo; String note; String rev;
+		 */
+		if (!VCardStruct.CompareString(newCard.name, oldCard.name))
+			return;
+
+		if (!VCardStruct.CompareString(newCard.nickName, oldCard.nickName))
+			return;
+		
+		ContentResolver cr = _context.getContentResolver();
+		int rawContactId = oldCard.GetRawContactID();
+		
+		if (!VCardStruct.CompareString(newCard.org, oldCard.org)) {
+			// insert org
+			//this.insertOrg(newCard.org, rawContactId, cr);
+		}
+
+		if (!VCardStruct.CompareString(newCard.url, oldCard.url)) {
+			// insert url
+			//this.insertOrg(newCard.url, oldCard.GetRawContactID() , cr);
+		}
+
+		if (!VCardStruct.CompareString(newCard.title, oldCard.title)) {
+			// insert title
+			//this.insertOrg(newCard.title, oldCard.GetRawContactID() , cr);
+		}
+
+		if (!VCardStruct.CompareString(newCard.note, oldCard.note)) {
+			// insert note;
+			//this.insertOrg(newCard.note, oldCard.GetRawContactID() , cr);
+		}
+
+		HashMap<Integer, String> newAddressTypeMap = newCard.addressTypeMap;
+
+		for (int key : newAddressTypeMap.keySet()) {
+			if (oldCard.addressTypeMap.containsKey(key)
+					&& VCardStruct.CompareString(
+							oldCard.addressTypeMap.get(key),
+							newAddressTypeMap.get(key))) {
+			} else {
+				this.insertAddress(key, newAddressTypeMap.get(key), rawContactId, cr);
+			}
+		}
+
+		HashMap<Integer, String> newEmailTypeMap = newCard.emailTypeMap;
+		for (int key : newEmailTypeMap.keySet()) {
+			if (oldCard.emailTypeMap.containsKey(key)
+					&& VCardStruct.CompareString(oldCard.emailTypeMap.get(key),
+							newEmailTypeMap.get(key))) {
+			} else {
+				this.insertEmail(key, newEmailTypeMap.get(key), rawContactId, cr);
+			}
+		}
+
+		HashMap<Integer, String> newTelTypeMap = newCard.telTypeMap;
+		for (int key : newTelTypeMap.keySet()) {
+			if (oldCard.telTypeMap.containsKey(key)
+					&& VCardStruct.CompareString(oldCard.telTypeMap.get(key),
+							newTelTypeMap.get(key))) {
+			} else {
+				this.insertPhone(key, newTelTypeMap.get(key), rawContactId, cr);
+			}
+		}
+
+	}
+
+	void insertEmail(VCardStruct vcard, long rawContactId, ContentResolver cr) {
+		HashMap<Integer, String> emailTypeMap = vcard.GetEmail();
+		if (emailTypeMap != null && emailTypeMap.size() > 0) {
+			for (int emailtype : emailTypeMap.keySet()) {
+				String email = emailTypeMap.get(emailtype);
+				insertEmail(emailtype, email, rawContactId, cr);
+			}
+		}
+	}
+
+	void insertEmail(int emailtype, String email, long rawContactId,
+			ContentResolver cr) {
+		ContentValues values = new ContentValues();
+		values.clear();
+		values.put(Data.RAW_CONTACT_ID, rawContactId);
+		values.put(Data.MIMETYPE, Email.CONTENT_ITEM_TYPE);
+		values.put(Email.DATA, email);
+		values.put(Email.TYPE, emailtype);
+		cr.insert(android.provider.ContactsContract.Data.CONTENT_URI, values);
+	}
+
+	void insertPhone(VCardStruct vcard, long rawContactId, ContentResolver cr) {
+		HashMap<Integer, String> telTypeMap = vcard.GetTel();
+		if (telTypeMap != null && telTypeMap.size() > 0) {
+			for (int telType : telTypeMap.keySet()) {
+				String tel = telTypeMap.get(telType);
+				insertPhone(telType, tel, rawContactId, cr);
+			}
+		}
+	}
+
+	void insertPhone(int telType, String tel, long rawContactId,
+			ContentResolver cr) {
+		ContentValues values = new ContentValues();
+		values.clear();
+		values.put(Data.RAW_CONTACT_ID, rawContactId);
+		values.put(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE);
+		values.put(Phone.NUMBER, tel);
+		values.put(Phone.TYPE, telType);
+		cr.insert(android.provider.ContactsContract.Data.CONTENT_URI, values);
+	}
+
+	void insertAddress(VCardStruct vcard, long rawContactId, ContentResolver cr) {
+		HashMap<Integer, String> addressTypeMap = vcard.GetAddress();
+		if (addressTypeMap != null && addressTypeMap.size() > 0) {
+			for (int adrType : addressTypeMap.keySet()) {
+				String adr = addressTypeMap.get(adrType);
+				insertAddress(adrType, adr, rawContactId, cr);
+			}
+
+		}
+	}
+
+	void insertAddress(int adrType, String adr, long rawContactId,
+			ContentResolver cr) {
+		ContentValues values = new ContentValues();
+		values.clear();
+		values.put(Data.RAW_CONTACT_ID, rawContactId);
+		values.put(Data.MIMETYPE, StructuredPostal.CONTENT_ITEM_TYPE);
+		String[] adrArray = adr.split(";");
+		if (adrArray != null && adrArray.length >= 7) {
+			values.put(StructuredPostal.POBOX, adrArray[0]);
+			values.put(StructuredPostal.DATA6, adrArray[1]);
+			values.put(StructuredPostal.DATA4, adrArray[2]);
+			values.put(StructuredPostal.DATA7, adrArray[3]);
+			values.put(StructuredPostal.DATA8, adrArray[4]);
+			values.put(StructuredPostal.DATA9, adrArray[5]);
+			values.put(StructuredPostal.DATA10, adrArray[6]);
+		} else {
+			values.put(StructuredPostal.DATA, adr);
+		}
+
+		values.put(StructuredPostal.TYPE, adrType);
+		cr.insert(android.provider.ContactsContract.Data.CONTENT_URI, values);
+	}
+
+	void insertNote(String note,long rawContactId, ContentResolver cr) {
+		ContentValues values = new ContentValues();
+		if (note != null) {
+			values.clear();
+			values.put(Data.RAW_CONTACT_ID, rawContactId);
+			values.put(Data.MIMETYPE, Note.CONTENT_ITEM_TYPE);
+			values.put(Note.NOTE, note);
+			cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
+					values);
+		}
+	}
+
+	void insertTitle(String title,long rawContactId, ContentResolver cr) {
+		ContentValues values = new ContentValues();
+		if (title != null) {
+			values.clear();
+			values.put(Data.RAW_CONTACT_ID, rawContactId);
+			values.put(Data.MIMETYPE, Organization.CONTENT_ITEM_TYPE);
+			values.put(Organization.TITLE, title);
+			cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
+					values);
+		}
+	}
+
+	void insertUrl(String url,long rawContactId, ContentResolver cr) {
+		ContentValues values = new ContentValues();
+		if (url != null) {
+			values.clear();
+			values.put(Data.RAW_CONTACT_ID, rawContactId);
+			values.put(Data.MIMETYPE, Website.CONTENT_ITEM_TYPE);
+			values.put(Website.URL, url);
+			cr.insert(android.provider.ContactsContract.Data.CONTENT_URI,
+					values);
+		}
+	}
+
+	void insertOrg(String org,long rawContactId, ContentResolver cr) {
+		ContentValues values = new ContentValues();
+		if (org != null) {
+			String[] orgs = org.split(";");
+			if (orgs.length >= 2) {
+				values.clear();
+				values.put(Data.RAW_CONTACT_ID, rawContactId);
+				values.put(Data.MIMETYPE, Organization.CONTENT_ITEM_TYPE);
+				if (orgs[0] != "null")
+					values.put(Organization.COMPANY, orgs[0]);
+				if (orgs[1] != "null")
+					values.put(Organization.DEPARTMENT, orgs[1]);
+				cr.insert(
+						android.provider.ContactsContract.Data.CONTENT_URI,
+						values);
+			}
 		}
 	}
 
@@ -346,9 +458,9 @@ public class VCardHelper {
 		 * 
 		 * String data10 = this.getString(Organization.PHONETIC_NAME_STYLE,
 		 * dataCursor);
-		 */
-
-		contactStuct.setOrg(data1 + ";" + data5);
+		 */ 
+		
+		contactStuct.setOrg(data1);
 		contactStuct.SetTitle(data4);
 	}
 
@@ -484,14 +596,14 @@ public class VCardHelper {
 		return ret;
 	}
 
-	static QuotedPrintableCodec codec = new  QuotedPrintableCodec();
-	
-	public static String Encoding(String str){
+	static QuotedPrintableCodec codec = new QuotedPrintableCodec();
+
+	public static String Encoding(String str) {
 		return codec.encode(str);
 	}
 
-	public static String Decoding(String str){
+	public static String Decoding(String str) {
 		return codec.decode(str);
 	}
-	
+
 }

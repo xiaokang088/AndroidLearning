@@ -18,22 +18,22 @@ public class VCardStruct {
 	String encodingTag = ";CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE";
 	
 	// nickname
-	String FNTag = "FN:";
-	String NTag = "N:";
+	String FNTag = "FN";
+	String NTag = "N";
 
 	// ORG
-	String ORGTag = "ORG:";
+	String ORGTag = "ORG";
 
 	// Title
-	String TitleTag = "TITLE:";
+	String TitleTag = "TITLE";
 
 	// UID
 	String UIDTag = "UID:";
 
 	// photo
-	String photoUrlTag = "PHOTO;TYPE=JPEG:%s";
+	//String photoUrlTag = "PHOTO;TYPE=JPEG:%s";
 	// %s is base64 data
-	String photoEncodingTag = "PHOTO;TYPE=JPEG;ENCODING=B:[%s]";
+	//String photoEncodingTag = "PHOTO;TYPE=JPEG;ENCODING=B:[%s]";
 
 	// Tel
 	String telTag = "TEL;TYPE=";
@@ -42,7 +42,7 @@ public class VCardStruct {
 	String AdrTag = "ADR;TYPE=";
 
 	// URL
-	String urlTag = "URL:";
+	String urlTag = "URL";
 
 	// REV
 	String revTag = "REV:%s";
@@ -50,7 +50,7 @@ public class VCardStruct {
 	// email
 	String emailTag = "EMAIL;TYPE=";
 
-	String NOTETag = "NOTE:";
+	String NOTETag = "NOTE";
 
 	final String[] emailTypes = { "HOME", "WORK", "OTHER", "MOBILE", "PREF" };
 
@@ -74,7 +74,8 @@ public class VCardStruct {
 	String photo;
 	String note;
 	String rev;
-
+	int rawContactID;
+	
 	public VCardStruct() {
 		telTypeMap.clear();
 		emailTypeMap.clear();
@@ -89,13 +90,15 @@ public class VCardStruct {
 
 		for (String str : strArr) {
 
-			if (str.startsWith(this.NTag)) {
-				this.name = splitValue(str);
+			if (str.startsWith(this.NTag + ":")
+					|| str.startsWith(this.NTag + ";")) {
+				this.name = splitEncodingValue(str);
 				continue;
 			}
 
-			if (str.startsWith(this.FNTag)) {
-				this.nickName = splitValue(str);
+			if (str.startsWith(this.FNTag + ":")
+					|| str.startsWith(this.FNTag + ";")) {
+				this.nickName = splitEncodingValue(str);
 				continue;
 			}
 
@@ -104,32 +107,32 @@ public class VCardStruct {
 			}
 
 			if (str.startsWith(this.ORGTag)) {
-				this.org = splitValue(str);
+				this.org = splitEncodingValue(str);
 				continue;
 			}
 
 			if (str.startsWith(this.TitleTag)) {
-				this.title = splitValue(str);
+				this.title = splitEncodingValue(str);
 				continue;
 			}
 
 			if (str.startsWith(this.UIDTag)) {
-				this.uid = splitValue(str);
+				this.uid = splitEncodingValue(str);
 				continue;
 			}
 
 			if (str.startsWith(this.urlTag)) {
-				this.url = splitValue(str);
+				this.url = splitEncodingValue(str);
 				continue;
 			}
 
 			if (str.startsWith(this.NOTETag)) {
-				this.note = splitValue(str);
+				this.note = splitEncodingValue(str);
 				continue;
 			}
 
 			if (str.startsWith(this.revTag)) {
-				this.rev = splitValue(str);
+				this.rev = splitEncodingValue(str);
 				continue;
 			}
 
@@ -169,8 +172,10 @@ public class VCardStruct {
 
 	}
 
-	String splitValue(String content) {
+	String splitEncodingValue(String content) {
 		// FN:nick
+		if (content.contains(this.encodingTag))
+			content = content.replace(this.encodingTag, "");
 		String[] arr = content.split(":");
 		if (arr.length == 2) {
 			String value = arr[1].trim();
@@ -180,7 +185,8 @@ public class VCardStruct {
 		}
 		return null;
 	}
-
+	
+	
 	int findIndex(String typeStr, String[] strArr) {
 		for (int i = 0; i < strArr.length; i++) {
 			if (typeStr.equalsIgnoreCase(strArr[i])) {
@@ -236,12 +242,17 @@ public class VCardStruct {
 
 	public void setUID(String uid) {
 		this.uid = uid;
+		this.rawContactID = Integer.parseInt(uid);
 	}
 
 	public String GetUID() {
 		return this.uid;
 	}
 
+	public int GetRawContactID(){
+		return this.rawContactID;
+	}
+	
 	public void SetUrl(String url) {
 		this.url = url;
 	}
@@ -382,9 +393,10 @@ public class VCardStruct {
 		String encodeValue = VCardHelper.Encoding(value);
 		if (encodeValue.equalsIgnoreCase(value)) {
 			// FN:nick
+			tag = tag + ":";
 		} else {
 			// FN;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:=E4=B8=89=E5=A4=A7=E8=A1=97=3B=6E=75=6C=6C
-			tag = tag.replace(":", encodingTag+":");
+			tag = tag + encodingTag + ":";
 		}
 
 		ret = String.format(tag + "%s", encodeValue);
@@ -400,11 +412,28 @@ public class VCardStruct {
 			tag = tag + type + ":";
 		} else {
 			// ADR;TYPE=HOME;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:;;;;=E6=B1=9F=E8=A5=BF=EF=BC=8C;;=E4=B8=AD=E5=9B=BD
-			tag = tag + type +encodingTag + ":";
+			tag = tag + type + encodingTag + ":";
 		}
 
 		ret = String.format(tag + "%s", encodeValue);
 		return ret;
+	}
+	
+	public boolean IsSameName(VCardStruct otherVCardStruct){
+		if (otherVCardStruct == null)
+			return false;
+
+		/*
+		 * String name, nickName; String org; String url; String title; String
+		 * uid; String photo; String note; String rev;
+		 */
+		if (!CompareString(otherVCardStruct.name, this.name))
+			return false;
+
+		if (!CompareString(otherVCardStruct.nickName, this.nickName))
+			return false;
+		
+		return true;
 	}
 	
 	public boolean IsEqual(VCardStruct otherVCardStruct) {
@@ -415,29 +444,29 @@ public class VCardStruct {
 		 * String name, nickName; String org; String url; String title; String
 		 * uid; String photo; String note; String rev;
 		 */
-		if (!compareString(otherVCardStruct.name, this.name))
+		if (!CompareString(otherVCardStruct.name, this.name))
 			return false;
 
-		if (!compareString(otherVCardStruct.nickName, this.nickName))
+		if (!CompareString(otherVCardStruct.nickName, this.nickName))
 			return false;
-		if (!compareString(otherVCardStruct.org, this.org))
+		if (!CompareString(otherVCardStruct.org, this.org))
 			return false;
-		if (!compareString(otherVCardStruct.url, this.url))
+		if (!CompareString(otherVCardStruct.url, this.url))
 			return false;
-		if (!compareString(otherVCardStruct.title, this.title))
+		if (!CompareString(otherVCardStruct.title, this.title))
 			return false;
 		/*
-		 * if (!compareString(otherVCardStruct.uid, this.uid)) return false;
-		 * if (!compareString(otherVCardStruct.photo, this.photo)) return false;
-		 * if (!compareString(otherVCardStruct.rev, this.rev)) return false;
+		 * if (!CompareString(otherVCardStruct.uid, this.uid)) return false;
+		 * if (!CompareString(otherVCardStruct.photo, this.photo)) return false;
+		 * if (!CompareString(otherVCardStruct.rev, this.rev)) return false;
 		 */
-		if (!compareString(otherVCardStruct.note, this.note))
+		if (!CompareString(otherVCardStruct.note, this.note))
 			return false;
 		HashMap<Integer, String> otherAddressTypeMap = otherVCardStruct.addressTypeMap;
 
 		for (int key : otherAddressTypeMap.keySet()) {
 			if (this.addressTypeMap.containsKey(key)
-					&& compareString(this.addressTypeMap.get(key),
+					&& CompareString(this.addressTypeMap.get(key),
 							otherAddressTypeMap.get(key))) {
 			} else {
 				return false;
@@ -447,7 +476,7 @@ public class VCardStruct {
 		HashMap<Integer, String> otherEmailTypeMap = otherVCardStruct.emailTypeMap;
 		for (int key : otherEmailTypeMap.keySet()) {
 			if (this.emailTypeMap.containsKey(key)
-					&& compareString(this.emailTypeMap.get(key),
+					&& CompareString(this.emailTypeMap.get(key),
 							otherEmailTypeMap.get(key))) {
 			} else {
 				return false;
@@ -457,7 +486,7 @@ public class VCardStruct {
 		HashMap<Integer, String> otherTelTypeMap = otherVCardStruct.telTypeMap;
 		for (int key : otherTelTypeMap.keySet()) {
 			if (this.telTypeMap.containsKey(key)
-					&& compareString(this.telTypeMap.get(key),
+					&& CompareString(this.telTypeMap.get(key),
 							otherTelTypeMap.get(key))) {
 			} else {
 				return false;
@@ -467,7 +496,7 @@ public class VCardStruct {
 		return true;
 	}
 
-	boolean compareString(String leftOne, String rightOne) {
+	public static boolean CompareString(String leftOne, String rightOne) {
 		if (leftOne != null)
 			leftOne = leftOne.trim();
 		if (rightOne != null)
@@ -487,6 +516,11 @@ public class VCardStruct {
 		return false;
 	}
 
+	@Override
+	public String toString(){
+		return String.format("name:%s nickName:%s", this.name,this.nickName);
+	}
+	
 	class TypeValuePair {
 
 		public TypeValuePair() {

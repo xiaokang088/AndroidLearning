@@ -1,0 +1,18 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+ 
+      <Button
+        android:id="@+id/ActionButton"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="测试Action属性" />
+         <Button
+        android:id="@+id/CategoryButton"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="测试Category属性" />
+
+</LinearLayout>

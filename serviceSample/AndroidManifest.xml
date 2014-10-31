@@ -7,6 +7,9 @@
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="19" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+  	<uses-permission   android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+  	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -22,7 +25,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name="com.example.servicesample.MyIntentService"></service>
+        
+        <!-- Service config: http://blog.csdn.net/think_soft/article/details/7584895 
+        http://developer.android.com/guide/components/intents-filters.html-->
+        <service android:name="com.example.servicesample.MyIntentService"
+           	android:enabled="true"
+           	android:icon="@drawable/ic_launcher"
+           	android:label="show for users"
+            android:exported="true">
+            <!-- Intent Filter: http://www.cnblogs.com/android_2011/archive/2011/06/12/2078643.html -->
+            <!-- Intent filter 关于Action、Category属性详解附带实例源码: http://blog.csdn.net/andie_guo/article/details/9271973 -->
+            
+            <intent-filter>
+                <action android:name="com.example.servicesample.MyIntentService.download" />
+           <!--http://blog.csdn.net/dlutbrucezhang/article/details/8917774    
+             <category android:name=”android.Intent.Category.BROWSABLE”/>
+                <data android:type=”audio/mpeg” android:scheme=”http” /> -->
+            </intent-filter>
+        </service>
         
         <service android:name="com.example.servicesample.MyService"></service>
     </application>

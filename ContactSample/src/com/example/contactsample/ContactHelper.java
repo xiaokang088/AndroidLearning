@@ -28,54 +28,27 @@ public class ContactHelper {
 	}
 
 	public int GetCount() {	
-		List<VCardStruct> phoneCards = GetAllContacts();
-		return phoneCards == null ? 0 : phoneCards.size();
-	}
-
-	public void WriteToPhone(String path) {
-		List<VCardStruct> cards = readFromVCard(path);
-		List<VCardStruct> phoneCards = GetAllContacts();
-
-		for (VCardStruct card : cards) {
-
-			boolean isExist = false;
-			for (VCardStruct phoneCard : phoneCards) {
-
-				if (card.name != null && phoneCard.name != null
-						&& phoneCard.name.equalsIgnoreCase(card.name)) {
-					if (phoneCard.IsEqual(card)) {
-						isExist = true;
-						break;
-					}
-				} else {
-					continue;
-				}
-			}
-
-			if (isExist) {
-				continue;
-			} else {
-				_vCardHelper.insertContact(card);
-			}
-		}
-	}
-
-	public List<VCardStruct> GetAllContacts() {
-		List<Integer> contactids = getContactids();
-		List<VCardStruct> VCardStructs = new ArrayList<VCardStruct>();
-		for (int contactID : contactids) {
-			VCardStruct contactStruct = _vCardHelper.getContactSturt(contactID,
-					cr);
-			if ((contactStruct.name == null || contactStruct.name.length() == 0)) {
-				// invalid data
-				continue;
-			}
-			VCardStructs.add(contactStruct);
-		}
-		return VCardStructs;
+		List<Integer> contactids = GetContactids();
+		return contactids == null ? 0 : contactids.size();
 	}
 	
-	List<Integer> getContactids() {
+	public void InsertContact(VCardStruct card){
+		_vCardHelper.InsertContact(card);
+	}
+
+	public void MergeContact(VCardStruct oldCard, VCardStruct newCard) {
+		if (oldCard == null || newCard == null)
+			return;
+		_vCardHelper.MergeContact(oldCard,newCard); 
+	}
+	
+	public VCardStruct GetVCardStruct(int contactID){
+		VCardStruct contactStruct = _vCardHelper.getContactSturt(contactID,
+				cr);
+		return  contactStruct;
+	}
+	
+	public List<Integer> GetContactids() {
 		Cursor rawContactCursor = cr.query(rawUri, projections, null, null,
 				null);
 
@@ -91,9 +64,7 @@ public class ContactHelper {
 		return contactids;
 	}
 
-
-
-	List<VCardStruct> readFromVCard(String path) {
+	public List<VCardStruct> ReadFromVCard(String path) {
 		List<VCardStruct> vcardStructList = null;
 
 		String content = FileUtil.ReadStringFromFile(path);
